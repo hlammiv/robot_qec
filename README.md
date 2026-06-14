@@ -68,8 +68,10 @@ literature, and synthesizes the result. See [`workflows/README.md`](workflows/RE
 - [x] Phased implementation roadmap → [`docs/04`](docs/04-implementation-roadmap.md)
 - [x] Arbitrary-dimension strategy (CRT factoring) → [`docs/05`](docs/05-arbitrary-dimension-crt.md)
 - [x] **Phase 0**: field substrate + genotype — `qudit_qec/{field_utils,genotype}.py` (round-trips GF(3)/GF(4) `[[72,·]]`, composite-`d` raises)
-- [x] **Phase 1**: CSS construction over GF(q) — `qudit_qec/construct.py` (`build_bb_code(field=q)`; coeff flip collapses `k` 8→0; 70 tests total)
-- [ ] **Phase 2**: prime-q distance backend (GUF pre-filter + mod-q MILP) ← critical path
+- [x] **Phase 1**: CSS construction over GF(q) — `qudit_qec/construct.py` (`build_bb_code(field=q)`; coeff flip collapses `k` 8→0)
+- [x] **Phase 2** *(critical path)*: distance backend — `distance.py` (GUF pre-filter, field-gated), `distance_milp.py` (prime-q mod-q MILP, **trusted**), `distance_qudit.py` (trust-gated dispatcher). MILP verified vs brute-force (d=2,4) + qldpc exact; **first MILP-certified qudit code: `[[32,2,4]]₃`**. 83 tests.
+- [ ] **Phase 3**: field-threaded evaluator cascade (k → bound → MILP) + coeff-aware dedup keys
+- [ ] **Phase 4 / 4.5**: GF(3) evolution campaign · CRT layer for square-free `d`
 - [ ] **Phase 3–4**: cascade + qudit genotype/seeds/prompts; run a GF(3) campaign
 - [ ] **MVP**: discover + MILP-verify a new `[[n,k,d]]₃` CSS code
 

@@ -15,9 +15,9 @@ Status: **✅ implemented** · 🔜 next · — deferred.
 | ✅ `field_utils.py` | — | `get_field(q)` prime-power guard (composite→CRT), in-field `assert_is_stabilizer_code`, `terms_to_poly`, `combine_like_terms`, `to_field_element`; **forbids raw `%q` on FieldArrays** | 0 ✓ |
 | ✅ `genotype.py` | exponent-tuple convention in `bb_code.py` + seeds | Term = `(x_exp, y_exp, coeff∈GF(q))`; `canonicalize`/`poly_key`/`pair_key`/`tuple_key`; reused by all cache/dedup keys | 0 ✓ |
 | ✅ `construct.py` | `evaluation/bb_code.py` | Build qudit CSS BB via `BBCode(field=q)` (qldpc auto-handles antipode/sign); `build_bb_code`/`validate_terms`/`code_params`; canonicalizes coeffs in-field before construction | 1 ✓ |
-| `distance.py` | `evaluation/distance.py` | Gate BP-OSD on `field.order==2`; kwarg-free GUF bound for q>2; OS-level timeout; `q^k`-gated exact | 2 ✓ |
-| `distance_milp.py` | `evaluation/distance_milp.py` | **Prime-q** mod-q MILP (`−q` slack, big-M weight indicator, prime guard) — the trusted signal | 2 ✓ |
-| `distance_qudit.py` *(new)* | — | Dispatcher: GUF pre-filter → MILP trusted → exact corroboration | 2 ✓ |
+| ✅ `distance.py` | `evaluation/distance.py` | `decoder_bound` gates BP-OSD on `field.order==2`, kwarg-free GUF for q>2 (cheap, loose pre-filter); `compute_distance_exact` (forked, OS-timeout) | 2 ✓ |
+| ✅ `distance_milp.py` | `evaluation/distance_milp.py` | **Prime-q** mod-q MILP (`−q` slack, big-M weight indicator, `L·x=1` unit-scaling, prime guard) — the trusted signal | 2 ✓ |
+| ✅ `distance_qudit.py` *(new)* | — | `code_distance` + `DistanceResult`: GUF pre-filter → MILP trusted ranking → exact corroboration; trust gate | 2 ✓ |
 | `evaluator.py` | `evaluation/evaluator.py` | Field-threaded cascade; MILP-corroboration trust gate; coeff-aware keys; `A==B⇒d=2` gated on q==2 | 3 ✓ |
 | `evolve/` | `seed_solution*.py`, `openevolve_evaluator*.py`, `prompt_context*.md`, `config*.yaml` | Coeff-bearing seeds + mutation, `QCODE_FIELD` plumbing, GF(q) prompts/baselines, retuned thresholds | 4 ✓ |
 | `pbb_construct.py` | `evaluation/pbb_code.py` | One-line `[Bᵀ,−Aᵀ]%q` sign fix + `field=q`; in-field commutativity | 5 — |

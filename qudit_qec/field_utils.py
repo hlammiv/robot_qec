@@ -77,6 +77,19 @@ def is_prime_power(n: int) -> bool:
     return len(prime_factorization(int(n))) == 1
 
 
+def is_prime(n: int) -> bool:
+    """True iff ``n`` is a prime (n >= 2).
+
+    Distinguished from :func:`is_prime_power` because the mod-q MILP distance
+    formulation is valid only for *prime* q (where Z_q == GF(q)), not for
+    prime-power q = p^m with m > 1.
+    """
+    if not isinstance(n, (int, np.integer)) or n < 2:
+        return False
+    factors = prime_factorization(int(n))
+    return len(factors) == 1 and next(iter(factors.values())) == 1
+
+
 # --------------------------------------------------------------------------- #
 # Field construction
 # --------------------------------------------------------------------------- #

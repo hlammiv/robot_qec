@@ -14,17 +14,28 @@ Phase 0 (this release) provides the field substrate and genotype foundations; se
 
 from __future__ import annotations
 
-from . import construct, field_utils, genotype
+from . import (
+    construct,
+    distance,
+    distance_milp,
+    distance_qudit,
+    field_utils,
+    genotype,
+)
 from .construct import (
     build_bb_code,
     code_params,
     get_code_params_fast,
     validate_terms,
 )
+from .distance import compute_distance_exact, decoder_bound
+from .distance_milp import compute_distance_milp, ilp_min_weight
+from .distance_qudit import DistanceResult, code_distance
 from .field_utils import (
     assert_is_stabilizer_code,
     combine_like_terms,
     get_field,
+    is_prime,
     is_prime_power,
     prime_factorization,
     symplectic_conjugate,
@@ -46,14 +57,25 @@ __all__ = [
     "field_utils",
     "genotype",
     "construct",
+    "distance",
+    "distance_milp",
+    "distance_qudit",
     # construct
     "validate_terms",
     "build_bb_code",
     "get_code_params_fast",
     "code_params",
+    # distance
+    "decoder_bound",
+    "compute_distance_exact",
+    "ilp_min_weight",
+    "compute_distance_milp",
+    "code_distance",
+    "DistanceResult",
     # field_utils
     "prime_factorization",
     "is_prime_power",
+    "is_prime",
     "get_field",
     "to_field_element",
     "combine_like_terms",
