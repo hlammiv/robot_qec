@@ -70,6 +70,7 @@ def evaluate_candidate(
     *,
     distance: str = "trusted",
     want_exact: bool = False,
+    certify: bool = False,
     milp_timeout_per_logical: float = 20,
     milp_total_timeout: float = 120,
     prefilter_trials: int = 50,
@@ -121,6 +122,7 @@ def evaluate_candidate(
         prefilter_trials=prefilter_trials,
         milp_timeout_per_logical=milp_timeout_per_logical,
         milp_total_timeout=milp_total_timeout,
+        certify=certify,
         want_exact=want_exact,
     )
     d = res.d

@@ -16,8 +16,8 @@ Status: **✅ implemented** · 🔜 next · — deferred.
 | ✅ `genotype.py` | exponent-tuple convention in `bb_code.py` + seeds | Term = `(x_exp, y_exp, coeff∈GF(q))`; `canonicalize`/`poly_key`/`pair_key`/`tuple_key`; reused by all cache/dedup keys | 0 ✓ |
 | ✅ `construct.py` | `evaluation/bb_code.py` | Build qudit CSS BB via `BBCode(field=q)` (qldpc auto-handles antipode/sign); `build_bb_code`/`validate_terms`/`code_params`; canonicalizes coeffs in-field before construction | 1 ✓ |
 | ✅ `distance.py` | `evaluation/distance.py` | `decoder_bound` gates BP-OSD on `field.order==2`, kwarg-free GUF for q>2 (cheap, loose pre-filter); `compute_distance_exact` (forked, OS-timeout) | 2 ✓ |
-| ✅ `distance_milp.py` | `evaluation/distance_milp.py` | **Prime-q** mod-q MILP (`−q` slack, big-M weight indicator, `L·x=1` unit-scaling, prime guard) — the trusted signal | 2 ✓ |
-| ✅ `distance_qudit.py` *(new)* | — | `code_distance` + `DistanceResult`: GUF pre-filter → MILP trusted ranking → exact corroboration; trust gate | 2 ✓ |
+| ✅ `distance_milp.py` | `evaluation/distance_milp.py` | **Prime-q** mod-q MILP (`−q` slack, big-M weight indicator, `L·x=1` unit-scaling, prime guard); `ilp_feasible_weight_le` + `certify_distance_geq` (weight-cut **lower-bound proof**) | 2 ✓ |
+| ✅ `distance_qudit.py` *(new)* | — | `code_distance` + `DistanceResult`: GUF pre-filter → MILP + **QDistRnd** (2nd independent source) → tightest bound; **certifies exact** via QDistRnd-upper + weight-cut-lower; trust gate | 2 ✓ |
 | ✅ `evaluator.py` | `evaluation/evaluator.py` | `evaluate_candidate(field=q)` cascade (validate→k→bound/MILP→FOM); `EvalResult` with trust gate, `self_dual` marker, coeff-aware key | 3 ✓ |
 | ✅ `structure.py` *(new)* | (part of `tanner_equivalence`) | Tanner-graph decomposability (union-find): `is_decomposable`/`connected_components` — direct-sum detection, field-agnostic | 3 ✓ |
 | ✅ `results.py` | `evaluation/results.py` | `CodeCatalog`: coeff-aware dedup (records q), Pareto front (n/k/d), best-by-FOM | 3 ✓ |

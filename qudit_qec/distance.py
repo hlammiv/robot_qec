@@ -68,6 +68,21 @@ def decoder_bound(code, num_trials: int = 50, *, tight: bool = False) -> int:
     return min(_safe_int(d_x, n), _safe_int(d_z, n))
 
 
+def qdistrnd_bound(code, num_trials: int = 200) -> int:
+    """Independent both-sector UPPER bound on distance via qldpc's ``get_distance_bound``.
+
+    This path is backed by GAP/QDistRnd -- a peer-reviewed randomized GF(q) distance
+    tool that constructs *explicit* low-weight codewords -- so it is a genuinely
+    independent second source from the MILP, and is typically much tighter than a
+    loose MILP incumbent (it caught the GF(3) ``[[108,6,<=15]] -> d<=12`` overestimate).
+    It is still an UPPER bound; pair it with
+    :func:`qudit_qec.distance_milp.certify_distance_geq` to certify exactness.
+    """
+    if code.dimension == 0:
+        return 0
+    return _safe_int(code.get_distance_bound(num_trials), code.num_qudits)
+
+
 def _exact_worker(code, queue) -> None:
     try:
         d = code.get_distance_exact()

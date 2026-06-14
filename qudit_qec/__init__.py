@@ -41,8 +41,13 @@ from .construct import (
     get_code_params_fast,
     validate_terms,
 )
-from .distance import compute_distance_exact, decoder_bound
-from .distance_milp import compute_distance_milp, ilp_min_weight
+from .distance import compute_distance_exact, decoder_bound, qdistrnd_bound
+from .distance_milp import (
+    certify_distance_geq,
+    compute_distance_milp,
+    ilp_feasible_weight_le,
+    ilp_min_weight,
+)
 from .distance_qudit import DistanceResult, code_distance
 from .evaluator import EvalResult, evaluate_candidate
 from .results import CodeCatalog
@@ -87,9 +92,12 @@ __all__ = [
     "code_params",
     # distance
     "decoder_bound",
+    "qdistrnd_bound",
     "compute_distance_exact",
     "ilp_min_weight",
+    "ilp_feasible_weight_le",
     "compute_distance_milp",
+    "certify_distance_geq",
     "code_distance",
     "DistanceResult",
     # field_utils

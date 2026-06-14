@@ -18,8 +18,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field as _dc_field
 
-from .distance import compute_distance_exact, decoder_bound
-from .distance_milp import compute_distance_milp
+from .distance import compute_distance_exact, decoder_bound, qdistrnd_bound
+from .distance_milp import certify_distance_geq, compute_distance_milp
 from .field_utils import is_prime
 
 
@@ -29,8 +29,10 @@ class DistanceResult:
 
     Attributes:
         d: the best distance value found (exact if ``trusted``, else an upper bound).
-        method: which backend produced ``d`` (``'milp'``, ``'milp_incumbent'``,
-            ``'exact'``, or ``'guf_bound'``).
+        method: which backend produced ``d`` (``'milp'`` = MILP-certified exact,
+            ``'qdistrnd+milp_cut'`` = QDistRnd upper bound + weight-cut lower bound
+            certificate, ``'exact'`` = enumeration, ``'upper_bound'`` = tightest
+            untrusted bound = min(MILP incumbent, QDistRnd), or ``'guf_bound'``).
         trusted: True only if ``d`` is MILP-certified or exact-enumerated.
         exact: alias of ``trusted`` (``d`` is the proven minimum distance).
         upper_bound: the cheap GUF/BP-OSD pre-filter bound (always an upper bound).
@@ -54,15 +56,32 @@ def code_distance(
     prefilter_trials: int = 50,
     milp_timeout_per_logical: float = 30,
     milp_total_timeout: float = 180,
+    qdistrnd_trials: int = 100,
+    certify: bool = True,
+    certify_timeout_per_logical: float = 20,
+    certify_total_timeout: float = 90,
     want_exact: bool = False,
     exact_timeout: float = 60,
     exact_max_num_qudits: int = 48,
 ) -> DistanceResult:
     """Compute a trust-aware distance for a CSS code over GF(q).
 
-    For **prime** q the MILP provides the trusted signal; for prime-power q (where
-    the integer MILP is invalid) the result falls back to the loose GUF bound and
-    is left untrusted unless exact enumeration corroborates it.
+    Two independent distance sources are combined:
+
+    * the **prime-q MILP** (minimize weight) -- certifies exactly when it proves
+      optimality; otherwise an incumbent (upper bound), and
+    * the **QDistRnd** both-sector bound (``qdistrnd_bound``) -- an independent,
+      usually-tighter upper bound that constructs explicit codewords.
+
+    The reported distance is the *tightest* upper bound from the two. A result is
+    ``trusted`` when (i) the MILP proves optimality, or (ii) ``certify`` is on and a
+    weight-cut proof (``certify_distance_geq``) shows ``d >= U`` matching the
+    upper bound ``U`` -- pinning ``d = U`` exactly. The loose MILP incumbent is never
+    reported on its own (it is replaced by ``min(MILP, QDistRnd)``).
+
+    For prime-power q (where the integer MILP is invalid) only the QDistRnd/GUF
+    bound is available; the result stays untrusted unless exact enumeration
+    corroborates it.
     """
     q = int(q if q is not None else code.field.order)
     if code.dimension == 0:
@@ -78,15 +97,34 @@ def code_distance(
             total_timeout=milp_total_timeout,
             early_stop=None,  # certify exact
         )
-        trusted = bool(details.get("exact"))
-        method = "milp" if trusted else "milp_incumbent"
-        d = d_milp
+        if details.get("exact"):
+            d, trusted, method = d_milp, True, "milp"
+        else:
+            # MILP only found an incumbent. Tighten with the independent QDistRnd
+            # upper bound, then try to certify exactness via a weight-cut proof.
+            u_qd = qdistrnd_bound(code, qdistrnd_trials)
+            details["milp_incumbent"] = d_milp
+            details["qdistrnd_bound"] = u_qd
+            d = min(d_milp, u_qd)
+            trusted, method = False, "upper_bound"
+            if certify:
+                cert = certify_distance_geq(
+                    code, q, d,
+                    timeout_per_logical=certify_timeout_per_logical,
+                    total_timeout=certify_total_timeout,
+                )
+                details["certify"] = cert
+                if cert["certified"]:
+                    trusted, method = True, "qdistrnd+milp_cut"
     else:
-        # prime-power: integer mod-q MILP is invalid; only the bound is available.
-        d = upper
+        # prime-power: integer mod-q MILP is invalid; QDistRnd bound is still a valid
+        # (untrusted) upper bound and is tighter than the per-sector GUF pre-filter.
+        u_qd = qdistrnd_bound(code, qdistrnd_trials)
+        d = min(upper, u_qd)
         trusted = False
         method = "guf_bound"
-        details = {"note": "prime-power q: MILP invalid; bound only (see docs/05)"}
+        details = {"note": "prime-power q: MILP invalid; QDistRnd/GUF bound only (docs/05)",
+                   "qdistrnd_bound": u_qd}
 
     if want_exact:
         d_exact = compute_distance_exact(

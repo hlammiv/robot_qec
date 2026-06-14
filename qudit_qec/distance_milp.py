@@ -71,6 +71,49 @@ def get_code_matrices(code, q: int):
     return hx, hz, lx, lz
 
 
+def _build_milp_pieces(check_matrix, logical_op, q: int):
+    """Shared (objective-free) constraint system for the GF(q) min-weight-logical MILP.
+
+    Variable layout: ``x(n) in [0,q-1] | w(n) binary | s(m) int slacks | t int slack``.
+    Encodes ``H[r].x - q*s_r = 0`` (commute), ``L.x - q*t = 1`` (anticommute), and the
+    weight indicator ``(q-1)*w_j - x_j >= 0``. Returns
+    ``(nv, ix_w, rows, lb, ub, vlb, vub)``; the caller sets the objective (and may
+    append rows, e.g. a weight cap).
+    """
+    check_matrix = np.asarray(check_matrix, dtype=int)
+    logical_op = np.asarray(logical_op, dtype=int)
+    m, n = check_matrix.shape
+    nv = 2 * n + m + 1
+    ix_x, ix_w, ix_t = slice(0, n), slice(n, 2 * n), 2 * n + m
+
+    rows: list[np.ndarray] = []
+    lb: list[float] = []
+    ub: list[float] = []
+    for r in range(m):
+        row = np.zeros(nv)
+        row[ix_x] = check_matrix[r]
+        row[2 * n + r] = -q
+        rows.append(row); lb.append(0.0); ub.append(0.0)
+    row = np.zeros(nv)
+    row[ix_x] = logical_op
+    row[ix_t] = -q
+    rows.append(row); lb.append(1.0); ub.append(1.0)
+    for j in range(n):
+        row = np.zeros(nv)
+        row[n + j] = q - 1
+        row[j] = -1
+        rows.append(row); lb.append(0.0); ub.append(np.inf)
+
+    vlb = np.zeros(nv)
+    vub = np.zeros(nv)
+    vub[ix_x] = q - 1
+    vub[ix_w] = 1
+    for r in range(m):
+        vub[2 * n + r] = int(np.sum(check_matrix[r]) * (q - 1) // q) + 1
+    vub[ix_t] = int(np.sum(logical_op) * (q - 1) // q) + 1
+    return nv, ix_w, rows, lb, ub, vlb, vub
+
+
 def ilp_min_weight(check_matrix, logical_op, q: int, timeout: float = 30):
     """Min-weight operator over GF(q) commuting with ``check_matrix``, anticommuting
     with ``logical_op``.
@@ -86,56 +129,10 @@ def ilp_min_weight(check_matrix, logical_op, q: int, timeout: float = 30):
         True if proven optimal. ``(None, False)`` if no feasible solution was found.
     """
     q = _require_prime(q)
-    check_matrix = np.asarray(check_matrix, dtype=int)
-    logical_op = np.asarray(logical_op, dtype=int)
-    m, n = check_matrix.shape
-
-    # Variable layout: x(n) in [0, q-1] | w(n) binary | s(m) int slacks | t int slack
-    nv = 2 * n + m + 1
-    ix_x, ix_w, ix_s, ix_t = slice(0, n), slice(n, 2 * n), slice(2 * n, 2 * n + m), 2 * n + m
+    nv, ix_w, rows, lb, ub, vlb, vub = _build_milp_pieces(check_matrix, logical_op, q)
 
     c = np.zeros(nv)
     c[ix_w] = 1.0  # minimize the number of nonzero qudits
-
-    rows: list[np.ndarray] = []
-    lb: list[float] = []
-    ub: list[float] = []
-
-    # commutation with each check: H[r].x - q*s_r = 0
-    for r in range(m):
-        row = np.zeros(nv)
-        row[ix_x] = check_matrix[r]
-        row[2 * n + r] = -q
-        rows.append(row)
-        lb.append(0.0)
-        ub.append(0.0)
-
-    # anticommutation with the logical: L.x - q*t = 1
-    row = np.zeros(nv)
-    row[ix_x] = logical_op
-    row[ix_t] = -q
-    rows.append(row)
-    lb.append(1.0)
-    ub.append(1.0)
-
-    # weight indicator: (q-1)*w_j - x_j >= 0  (x_j > 0 => w_j = 1)
-    for j in range(n):
-        row = np.zeros(nv)
-        row[n + j] = q - 1
-        row[j] = -1
-        rows.append(row)
-        lb.append(0.0)
-        ub.append(np.inf)
-
-    constraints = LinearConstraint(np.array(rows), np.array(lb), np.array(ub))
-
-    vlb = np.zeros(nv)
-    vub = np.zeros(nv)
-    vub[ix_x] = q - 1
-    vub[ix_w] = 1
-    for r in range(m):
-        vub[2 * n + r] = int(np.sum(check_matrix[r]) * (q - 1) // q) + 1
-    vub[ix_t] = int(np.sum(logical_op) * (q - 1) // q) + 1
 
     opts = {"presolve": True}
     if 0 < timeout < 1e9:
@@ -143,7 +140,7 @@ def ilp_min_weight(check_matrix, logical_op, q: int, timeout: float = 30):
 
     result = milp(
         c=c,
-        constraints=constraints,
+        constraints=LinearConstraint(np.array(rows), np.array(lb), np.array(ub)),
         integrality=np.ones(nv),
         bounds=Bounds(vlb, vub),
         options=opts,
@@ -151,6 +148,97 @@ def ilp_min_weight(check_matrix, logical_op, q: int, timeout: float = 30):
     if result.x is not None:
         return int(round(result.fun)), bool(result.success)
     return None, False
+
+
+def ilp_feasible_weight_le(check_matrix, logical_op, q: int, max_weight: int, timeout: float = 20):
+    """Decision MILP: does a GF(q) operator exist that commutes with ``check_matrix``,
+    anticommutes with ``logical_op``, and has Hamming weight ``<= max_weight``?
+
+    Returns ``'feasible'`` (such an operator exists), ``'infeasible'`` (HiGHS
+    *proved* none exists -- a certified lower-bound contribution), or ``'unknown'``
+    (the solver hit the time limit). This is the lower-bound counterpart to
+    :func:`ilp_min_weight`, used by :func:`certify_distance_geq`.
+    """
+    q = _require_prime(q)
+    nv, ix_w, rows, lb, ub, vlb, vub = _build_milp_pieces(check_matrix, logical_op, q)
+    cap = np.zeros(nv)
+    cap[ix_w] = 1.0  # sum_j w_j <= max_weight
+    rows = rows + [cap]
+    lb = lb + [0.0]
+    ub = ub + [float(max_weight)]
+
+    opts = {"presolve": True}
+    if 0 < timeout < 1e9:
+        opts["time_limit"] = float(timeout)
+
+    result = milp(
+        c=np.zeros(nv),  # pure feasibility (no objective)
+        constraints=LinearConstraint(np.array(rows), np.array(lb), np.array(ub)),
+        integrality=np.ones(nv),
+        bounds=Bounds(vlb, vub),
+        options=opts,
+    )
+    if result.status == 2:  # scipy.milp: 2 == proven infeasible
+        return "infeasible"
+    if result.x is not None:
+        return "feasible"
+    return "unknown"
+
+
+def certify_distance_geq(
+    code,
+    q: int,
+    w: int,
+    *,
+    timeout_per_logical: float = 20,
+    total_timeout: float = 120,
+) -> dict:
+    """Attempt to PROVE that the code distance is ``>= w`` over prime GF(q).
+
+    Shows that no nontrivial logical has weight ``<= w-1`` by proving the
+    weight-capped decision MILP infeasible for every logical generator in both
+    sectors. Paired with an explicit weight-``w`` operator (e.g. from
+    :func:`qudit_qec.distance.qdistrnd_bound`), a ``certified=True`` result
+    establishes ``d = w`` *exactly* -- a certificate the minimize-weight MILP
+    cannot give when it only finds incumbents.
+
+    Returns ``{certified, status, logicals_proven, total_logicals, time_s}`` where
+    ``status`` is ``'certified'`` (d >= w proven), ``'refuted'`` (a weight ``<= w-1``
+    logical exists, so d < w), or ``'undetermined'`` (a solve timed out).
+    """
+    q = _require_prime(q)
+    k = code.dimension
+    if k == 0 or w <= 1:
+        return {"certified": True, "status": "certified", "logicals_proven": 0,
+                "total_logicals": 0, "time_s": 0.0}
+
+    hx, hz, lx, lz = get_code_matrices(code, q)
+    t0 = time.monotonic()
+    proven = 0
+    undetermined = False
+    for check, logicals in ((hx, lx), (hz, lz)):
+        for i in range(k):
+            remaining = total_timeout - (time.monotonic() - t0)
+            if remaining <= 0:
+                undetermined = True
+                break
+            res = ilp_feasible_weight_le(
+                check, logicals[i], q, w - 1, timeout=min(timeout_per_logical, remaining)
+            )
+            if res == "feasible":
+                return {"certified": False, "status": "refuted", "logicals_proven": proven,
+                        "total_logicals": 2 * k, "time_s": time.monotonic() - t0}
+            if res == "infeasible":
+                proven += 1
+            else:  # unknown -> cannot certify, but keep scanning for a refutation
+                undetermined = True
+        if undetermined:
+            break
+    certified = proven == 2 * k
+    return {"certified": certified,
+            "status": "certified" if certified else "undetermined",
+            "logicals_proven": proven, "total_logicals": 2 * k,
+            "time_s": time.monotonic() - t0}
 
 
 def compute_distance_milp(
