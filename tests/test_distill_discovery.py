@@ -49,6 +49,43 @@ def test_family_rejects_bad_params():
 
 
 # --------------------------------------------------------------------------- #
+# Reed-Muller constructor -- the d>2 triorthogonal route
+# --------------------------------------------------------------------------- #
+def test_reed_muller_15_is_triorthogonal_matrix():
+    """Punctured RM(1,4) reproduces the qubit [[15,1,3]] triorthogonal matrix:
+    1 magic row (all-ones), self-orthogonal H_0, transversal level-3 T, gamma~2.46."""
+    H = dd.reed_muller_triortho(2, 4, 1)
+    assert H.shape[1] == 15
+    r = dd.evaluate_distill_candidate(H, 2, d=3, d_status="known", op="reed_muller")
+    assert r.distills is True and r.k == 1 and r.n == 15
+    assert r.gamma == pytest.approx(math.log(15) / math.log(3), abs=0.01)   # ~2.46
+
+
+def test_reed_muller_15_distance_is_3_trusted():
+    """The [[15,1,3]] reproduction really has distance 3 (trusted MILP) -- a genuine
+    d>2 triorthogonal T distiller, not a d=2 family member."""
+    H = dd.reed_muller_triortho(2, 4, 1)
+    r = dd.evaluate_distill_candidate(H, 2, distance="trusted")
+    assert r.n == 15 and r.k == 1 and r.d == 3
+    assert r.d_status == "trusted" and r.trusted is True
+
+
+def test_reed_muller_recovers_d2_qutrit_family():
+    """RM(1,2) over F_3 punctured = the d=2 family member [[8,1,2]]_3 (=T(3,1,1))."""
+    H = dd.reed_muller_triortho(3, 2, 1)
+    r = dd.evaluate_distill_candidate(H, 3, d=2)
+    assert r.distills is True and r.n == 8 and r.k == 1
+
+
+def test_reed_muller_degree2_is_candidate_not_guaranteed():
+    """r>=2 generally breaks the 3r<m(p-1) bound: the constructor yields a CANDIDATE the
+    exact gate rejects, confirming nothing is triorthogonal-by-assumption."""
+    H = dd.reed_muller_triortho(2, 4, 2)
+    r = dd.evaluate_distill_candidate(H, 2, d=3)
+    assert r.rejected is True and r.distills is False
+
+
+# --------------------------------------------------------------------------- #
 # Validity gate
 # --------------------------------------------------------------------------- #
 def test_gate_rejects_random_matrix():

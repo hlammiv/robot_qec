@@ -49,6 +49,7 @@ from .distill_discovery import (
     DistillCatalog,
     DistillResult,
     evaluate_distill_candidate,
+    reed_muller_triortho,
     search_distill,
     triortho_family,
 )
@@ -109,6 +110,7 @@ __all__ = [
     "distill_strange",
     # distillation discovery arm (d=2 triorthogonal, general prime)
     "triortho_family",
+    "reed_muller_triortho",
     "evaluate_distill_candidate",
     "DistillResult",
     "DistillCatalog",

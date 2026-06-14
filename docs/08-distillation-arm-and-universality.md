@@ -89,10 +89,19 @@ modules):
   enum cap) is the **lenore-scale** extension; the QR-over-`F_{d²}` `ι⁻¹` map of
   arXiv:2408.00436 remains a future generalization.
 
-Still open from this list: the d>2 **triorthogonal** route (punctured-RM, general
-prime) — naive full-cube RM gives a strict triorthogonal *space* with no magic rows
-(confirmed in-repo), so it needs the careful magic-row puncturing the qubit
-`[[15,1,3]]` exemplifies; not yet built.
+- **d>2 *triorthogonal* (punctured-RM) route** (`reed_muller_triortho` in
+  `distill_discovery.py`): the constant (all-ones) row + degree-`1..r` monomials over
+  `F_p^m`, punctured at the origin (which makes the constant row magic, cube
+  `= p^m − 1 = −1 ≠ 0`). **Validated:** `(p=2,m=4,r=1)` reproduces the qubit
+  **`[[15,1,3]]`** triorthogonal matrix — transversal level-3 `T`, distance **3**
+  (trusted MILP), `γ = log₃15 ≈ 2.46` — a genuine `d>2` triorthogonal `T` distiller
+  in-repo. It is a *candidate* generator (re-validated by the cubic gate; `r≥2`
+  breaks the `3r < m(p−1)` bound).
+  **Honest qutrit finding:** the small-`(m≤3, r≤2)` punctured-RM search over `F_3`
+  yields **no `d>2` qutrit triorthogonal matrix** — only the known `d=2` family (e.g.
+  `(p=3,m=2,r=1)` = `[[8,1,2]]_3` = `T(3,1,1)`), consistent with arXiv:2403.06228's
+  all-`d=2` qutrit family. So the practical **`d>2` qutrit distiller is the strange/QR
+  route** (the Golay, `distill_strange.py`), not a triorthogonal `T` code.
 
 ## Compute safety (after the 2026-06-14 OOM crash)
 

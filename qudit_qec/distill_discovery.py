@@ -125,6 +125,46 @@ def qutrit_Tm(m: int, k: int) -> np.ndarray:
     return triortho_family(3, m, k)
 
 
+def reed_muller_triortho(p: int, m: int, r: int, *, extra_punctures=()) -> np.ndarray:
+    """Punctured Reed-Muller triorthogonal-matrix **candidate** over ``GF(p)`` (the
+    route to distance ``d > 2``).
+
+    Rows = the constant (all-ones) row + every monomial of total degree ``1..r`` in
+    ``m`` variables (each exponent ``<= p-1``) evaluated over the ``p^m`` points of
+    ``F_p^m``, then **punctured at the origin** (plus any ``extra_punctures`` point
+    indices).  Puncturing the origin makes the constant row a magic (``H_1``) row -- its
+    cube sums to ``p^m - 1 = -1 != 0 mod p`` -- while the degree``>=1`` rows form the
+    self-orthogonal ``H_0`` when triorthogonality holds.
+
+    Validated: ``(p=2, m=4, r=1)`` -> the qubit **``[[15,1,3]]``** triorthogonal matrix
+    (the original Reed-Muller ``T`` distiller, ``gamma = log_3 15 ~ 2.46``, distance
+    **3** -- a genuine ``d>2`` triorthogonal code); ``(p=3, m=2, r=1)`` -> ``[[8,1,2]]_3``
+    (``= triortho_family(3,1,1)``).  This is a *candidate* generator: not every
+    ``(p,m,r,puncture)`` is triorthogonal (``r >= 2`` generally fails the ``3r < m(p-1)``
+    bound), so :func:`evaluate_distill_candidate` re-validates with the exact cubic gate.
+    For ``p=3`` the small-``(m,r)`` punctured-RM search yields only the ``d=2`` family
+    (no ``d>2`` qutrit ``T`` distiller found); the practical ``d>2`` qutrit route is the
+    strange/QR sub-arm (:mod:`qudit_qec.distill_strange`).
+    """
+    if not is_prime(p):
+        raise ValueError(f"reed_muller_triortho is defined for prime p; got p={p}")
+    import itertools
+
+    pts = np.array(list(itertools.product(range(p), repeat=m)))
+    rows = [np.ones(len(pts), dtype=int)]                    # constant -> magic after puncture
+    for e in itertools.product(range(min(r, p - 1) + 1), repeat=m):
+        if 0 < sum(e) <= r:
+            col = np.ones(len(pts), dtype=int)
+            for v in range(m):
+                col = (col * np.power(pts[:, v], e[v])) % p
+            rows.append(col % p)
+    H = np.array(rows, dtype=int) % p
+    origin = int(np.where((pts == 0).all(axis=1))[0][0])
+    drop = {origin} | {int(c) for c in extra_punctures}
+    keep = [c for c in range(H.shape[1]) if c not in drop]
+    return H[:, keep] % p
+
+
 # --------------------------------------------------------------------------- #
 # Mutation operators (each candidate is re-validated downstream)
 # --------------------------------------------------------------------------- #
