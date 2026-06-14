@@ -91,7 +91,7 @@ prime-q MILP is the ~2–3 day critical path.
   MILP-verifies distances, and surfaces at least one **new** `[[n,k,d]]₃` code not
   in the GF(2) catalog, with permutation-dedup + decomposability accounting.
 
-### Phase 4.5 — CRT layer for arbitrary square-free `d` (~1–2 days, high value)
+### Phase 4.5 — CRT layer for arbitrary square-free `d` ✅ DONE (`qudit_qec/crt.py`)
 > Added by the 2026-06-14 decision to target arbitrary `d` via CRT factoring.
 > See [05](05-arbitrary-dimension-crt.md). Depends only on the prime-`q` CSS MVP.
 - New `qudit_qec/crt.py`: `factor_dimension`, `crt_moduli`, `classify(d)`,

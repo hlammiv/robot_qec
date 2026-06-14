@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from . import (
     construct,
+    crt,
     distance,
     distance_milp,
     distance_qudit,
@@ -24,6 +25,15 @@ from . import (
     genotype,
     results,
     structure,
+)
+from .crt import (
+    CRTResult,
+    canonicalize_zd,
+    classify,
+    crt_moduli,
+    evaluate_crt_candidate,
+    is_squarefree,
+    split_terms,
 )
 from .construct import (
     build_bb_code,
@@ -69,6 +79,7 @@ __all__ = [
     "evaluator",
     "results",
     "structure",
+    "crt",
     # construct
     "validate_terms",
     "build_bb_code",
@@ -105,4 +116,11 @@ __all__ = [
     "is_decomposable",
     "connected_components",
     "num_connected_components",
+    # crt (arbitrary square-free dimension)
+    "classify",
+    "crt_moduli",
+    "is_squarefree",
+    "split_terms",
+    "evaluate_crt_candidate",
+    "CRTResult",
 ]

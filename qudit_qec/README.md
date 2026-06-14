@@ -21,6 +21,7 @@ Status: **✅ implemented** · 🔜 next · — deferred.
 | ✅ `evaluator.py` | `evaluation/evaluator.py` | `evaluate_candidate(field=q)` cascade (validate→k→bound/MILP→FOM); `EvalResult` with trust gate, `self_dual` marker, coeff-aware key | 3 ✓ |
 | ✅ `structure.py` *(new)* | (part of `tanner_equivalence`) | Tanner-graph decomposability (union-find): `is_decomposable`/`connected_components` — direct-sum detection, field-agnostic | 3 ✓ |
 | ✅ `results.py` | `evaluation/results.py` | `CodeCatalog`: coeff-aware dedup (records q), Pareto front (n/k/d), best-by-FOM | 3 ✓ |
+| ✅ `crt.py` *(new)* | — | Arbitrary **square-free** `d` via CRT: `classify`/`crt_moduli`/`split_terms`, `evaluate_crt_candidate` → per-prime-factor field pipeline, distance = minᵢ dᵢ, `CRTResult` | 4.5 ✓ |
 | `evolve/` | `seed_solution*.py`, `openevolve_evaluator*.py`, `prompt_context*.md`, `config*.yaml` | Coeff-bearing seeds + mutation, `QCODE_FIELD` plumbing, GF(q) prompts/baselines, retuned thresholds | 4 ✓ |
 | `pbb_construct.py` | `evaluation/pbb_code.py` | One-line `[Bᵀ,−Aᵀ]%q` sign fix + `field=q`; in-field commutativity | 5 — |
 | `dedup.py` | `evaluation/tanner_equivalence.py` | BLISS **structural value-gadget** encoding GF(q) edge coefficients | 6 — |
