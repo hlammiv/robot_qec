@@ -17,6 +17,7 @@ from __future__ import annotations
 from . import (
     construct,
     crt,
+    distill_discovery,
     distillation,
     distance,
     distance_milp,
@@ -42,6 +43,13 @@ from .construct import (
     code_params,
     get_code_params_fast,
     validate_terms,
+)
+from .distill_discovery import (
+    DistillCatalog,
+    DistillResult,
+    evaluate_distill_candidate,
+    search_distill,
+    triortho_family,
 )
 from .distance import compute_distance_exact, decoder_bound, qdistrnd_bound
 from .distance_milp import (
@@ -87,6 +95,15 @@ __all__ = [
     "results",
     "structure",
     "crt",
+    "distillation",
+    "universality",
+    "distill_discovery",
+    # distillation discovery arm
+    "triortho_family",
+    "evaluate_distill_candidate",
+    "DistillResult",
+    "DistillCatalog",
+    "search_distill",
     # construct
     "validate_terms",
     "build_bb_code",
