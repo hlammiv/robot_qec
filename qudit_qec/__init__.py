@@ -17,6 +17,7 @@ from __future__ import annotations
 from . import (
     construct,
     crt,
+    distillation,
     distance,
     distance_milp,
     distance_qudit,
@@ -25,6 +26,7 @@ from . import (
     genotype,
     results,
     structure,
+    universality,
 )
 from .crt import (
     CRTResult,
