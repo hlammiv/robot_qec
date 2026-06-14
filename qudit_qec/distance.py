@@ -77,10 +77,19 @@ def qdistrnd_bound(code, num_trials: int = 200) -> int:
     loose MILP incumbent (it caught the GF(3) ``[[108,6,<=15]] -> d<=12`` overestimate).
     It is still an UPPER bound; pair it with
     :func:`qudit_qec.distance_milp.certify_distance_geq` to certify exactness.
+
+    Portability: qldpc's ``get_distance_bound`` requires the GAP ``GUAVA`` package and
+    will *prompt to install it* if missing (which raises ``EOFError`` with no TTY, or
+    hangs on a TTY). If GAP/GUAVA is unavailable we fall back to the GAP-free
+    per-sector GUF bound (:func:`decoder_bound`) -- looser, but never crashes or
+    blocks. Install GUAVA in GAP to get the tight bound on such machines.
     """
     if code.dimension == 0:
         return 0
-    return _safe_int(code.get_distance_bound(num_trials), code.num_qudits)
+    try:
+        return _safe_int(code.get_distance_bound(num_trials), code.num_qudits)
+    except Exception:  # noqa: BLE001 - GAP/GUAVA missing (EOFError on its prompt) or any failure
+        return decoder_bound(code, max(int(num_trials), 50), tight=False)
 
 
 def _exact_worker(code, queue) -> None:
