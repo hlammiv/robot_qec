@@ -72,7 +72,7 @@ literature, and synthesizes the result. See [`workflows/README.md`](workflows/RE
 - [x] **Phase 2** *(critical path)*: distance backend — `distance.py` (GUF pre-filter, field-gated), `distance_milp.py` (prime-q mod-q MILP, **trusted**), `distance_qudit.py` (trust-gated dispatcher). MILP verified vs brute-force (d=2,4) + qldpc exact; **first MILP-certified qudit code: `[[32,2,4]]₃`**. 83 tests.
 - [x] **Phase 3**: evaluator cascade + dedup — `evaluator.py` (`evaluate_candidate(field=q)`), `structure.py` (decomposability), `results.py` (`CodeCatalog`, coeff-aware Pareto). End-to-end `[[32,2,4]]₃` `{n,k,d,fom}` trusted; coeff-differing codes kept distinct. 99 tests.
 - [x] **Phase 4.5**: CRT layer — `qudit_qec/crt.py` (`evaluate_crt_candidate`). Arbitrary **square-free** `d` (6, 10, 15, 30…) via per-prime-factor reuse of the field pipeline; distance = minᵢ dᵢ. Milestone: trusted `Z_6` (qubit⊗qutrit) code. 124 tests.
-- [ ] **Phase 4**: wire evaluator into OpenEvolve → run a GF(3) campaign (discover new codes)
+- [~] **Phase 4**: OpenEvolve scaffolding **built & tested** — `qudit_qec/evolve/` (coeff-bearing seed, `adapter.evaluate`, `run_evolution --field`, GF(q) config + prompt). Ready to launch; needs `openevolve`+`litellm`+an LLM endpoint to run a live campaign.
 - [ ] **Phase 7**: prime-power `GF(p^a)` (7a) then modular `Z_{p^a}` ring backend (7b) → completes arbitrary `d`
 - [ ] **Phase 3–4**: cascade + qudit genotype/seeds/prompts; run a GF(3) campaign
 - [ ] **MVP**: discover + MILP-verify a new `[[n,k,d]]₃` CSS code

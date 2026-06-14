@@ -22,7 +22,7 @@ Status: **✅ implemented** · 🔜 next · — deferred.
 | ✅ `structure.py` *(new)* | (part of `tanner_equivalence`) | Tanner-graph decomposability (union-find): `is_decomposable`/`connected_components` — direct-sum detection, field-agnostic | 3 ✓ |
 | ✅ `results.py` | `evaluation/results.py` | `CodeCatalog`: coeff-aware dedup (records q), Pareto front (n/k/d), best-by-FOM | 3 ✓ |
 | ✅ `crt.py` *(new)* | — | Arbitrary **square-free** `d` via CRT: `classify`/`crt_moduli`/`split_terms`, `evaluate_crt_candidate` → per-prime-factor field pipeline, distance = minᵢ dᵢ, `CRTResult` | 4.5 ✓ |
-| `evolve/` | `seed_solution*.py`, `openevolve_evaluator*.py`, `prompt_context*.md`, `config*.yaml` | Coeff-bearing seeds + mutation, `QCODE_FIELD` plumbing, GF(q) prompts/baselines, retuned thresholds | 4 ✓ |
+| 🟡 `evolve/` | `seed_solution*.py`, `openevolve_evaluator*.py`, `prompt_context*.md`, `config*.yaml` | **Scaffolding built+tested:** coeff-bearing `seed_solution_qudit.py`, `adapter.evaluate`, `run_evolution --field`/`QCODE_FIELD`, `config_qudit.yaml`, `prompt_context_qudit.md`. Live campaign needs `openevolve`+LLM endpoint | 4 🟡 |
 | `pbb_construct.py` | `evaluation/pbb_code.py` | One-line `[Bᵀ,−Aᵀ]%q` sign fix + `field=q`; in-field commutativity | 5 — |
 | `dedup.py` | `evaluation/tanner_equivalence.py` | BLISS **structural value-gadget** encoding GF(q) edge coefficients | 6 — |
 | `qudit_clifford.py` *(new)* | `evaluation/clifford_equivalence.py` | `Sp(2,q)` Clifford / LC↔CSS equivalence (research) | 7 — |

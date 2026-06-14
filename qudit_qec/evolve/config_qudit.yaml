@@ -1,0 +1,77 @@
+# OpenEvolve configuration for QUDIT (GF(q)) BB code discovery.
+# Usage: python -m qudit_qec.evolve.run_evolution --field 3 --config <this file>
+#
+# llm.api_base and llm.models are overridden by run_evolution.py CLI args.
+# The field order q is passed to the evaluator via the QCODE_FIELD env var.
+
+max_iterations: 200
+diff_based_evolution: true
+log_level: "INFO"
+max_code_length: 50000
+checkpoint_interval: 25
+
+llm:
+  api_base: "http://localhost:4000/v1"
+  models:
+    - name: "anthropic/claude-opus-4-8"
+      weight: 0.34
+      temperature: 0.8
+    - name: "openai/gpt-5.2"
+      weight: 0.33
+      temperature: null
+    - name: "gemini/gemini-3-pro-preview"
+      weight: 0.33
+      temperature: 0.8
+  temperature: 0.8
+  max_tokens: 16384
+  timeout: 300
+  retries: 4
+  retry_delay: 10
+
+prompt:
+  system_message: |
+    You are an expert in quantum error-correcting codes, specifically QUDIT
+    bivariate bicycle (BB) codes over a finite field GF(q). You are improving a
+    Python function `generate_candidates(ell, m)` that returns candidate BB code
+    polynomial pairs (A_terms, B_terms) for evaluation over GF(q). The field order
+    q is available in the module-level constant `FIELD` (a prime).
+
+    Each polynomial term is a triple (x_exp, y_exp, coeff) with coeff in {1,...,q-1}
+    (a 2-tuple (x_exp, y_exp) is also accepted and means coeff 1). The code is
+    H_X = [A | B], H_Z = [B^T | -A^T] over GF(q)[x,y]/(x^ell - 1, y^m - 1); the
+    library handles the antipode and sign automatically.
+
+    Your goal: maximize FOM = k*d^2/n, where k = logical qudits (exact, via GF(q)
+    rank), d = code distance (computed exactly by a trusted mod-q MILP), and
+    n = 2*ell*m physical qudits.
+
+    What is DIFFERENT from the qubit (F_2) case, and where the opportunity lies:
+    - COEFFICIENTS ARE LOAD-BEARING. Over GF(q) a single monomial coefficient
+      changes the code: e.g. x^3+y+y^2 gives k=8 over GF(3), but x^3+2y+y^2 gives
+      k=0. Scaling a WHOLE polynomial by a unit is a trivial relabeling (same code),
+      but mixing coefficients within or between A and B is a genuinely new search
+      axis with no F_2 analogue. Explore it.
+    - The proven qubit structures are good starting points (x/y-swap
+      A = x^a + y^b + y^c with B = y^d + x^e + x^f; constant-monomial A=f(y),
+      B=g(x)), but their distance/rate profile changes over GF(q).
+    - Beware traps: A == B forces low distance; constant-monomial/HGP-like codes
+      reach high k but low d. The evaluator reports these (decomposability,
+      self_dual); aim for INDECOMPOSABLE codes with both high k and high d.
+
+    Return a list of (A_terms, B_terms) pairs from `generate_candidates(ell, m)`.
+    Keep candidate counts per lattice modest (hundreds to low thousands).
+  include_artifacts: true
+  suggest_simplification_after_chars: 12000
+
+evaluator:
+  timeout: 1800
+  # Single-stage evaluate() (k-screen + trusted MILP inside the adapter).
+  cascade_evaluation: false
+  parallel_evaluations: 4
+
+database:
+  population_size: 200
+  num_islands: 4
+  migration_interval: 20
+  # MAP-Elites behavioral dimensions returned by adapter.evaluate
+  feature_dimensions: ["lattices_with_high_k", "num_high_k"]
