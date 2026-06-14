@@ -1,0 +1,25 @@
+{
+  "field": 3,
+  "description": "Trustworthy GF(3) qutrit bivariate-bicycle code baselines from the sweep + independent adversarial verification (results/gf3_report.md). Tiers: 'exact' = MILP-certified; 'upper_bound' = multi-method-agreed ceiling (true d may be lower); refuted incumbents are listed with corrected d<=.",
+  "verified_by": "qldpc GUF/QDistRnd + from-scratch GF(3) ISD + MILP weight-cut certification",
+  "certified_exact": [
+    {"ell": 6, "m": 6, "A": [[0,2,1],[3,0,1],[5,1,1]], "B": [[0,3,1],[1,0,1],[2,0,1]], "n": 72, "k": 6, "d": 8, "fom": 5.333, "indecomposable": true, "note": "highest certified-exact FOM; d=8 proven (two-sided weight-cut MILP infeasibility + weight-8 witness, GUF-corroborated)"},
+    {"ell": 6, "m": 6, "A": [[0,1,1],[3,0,1],[5,2,1]], "B": [[0,3,1],[1,0,1],[2,0,1]], "n": 72, "k": 6, "d": 8, "fom": 5.333, "indecomposable": null, "note": "certified exact d=8 (w<=7 proven infeasible)"},
+    {"ell": 9, "m": 3, "A": [[0,0,1],[0,1,1],[4,0,1]], "B": [[0,0,1],[0,1,1],[1,0,1]], "n": 54, "k": 6, "d": 6, "fom": 4.0, "indecomposable": true, "note": "certified exact (MILP exact=True, all 12 logicals optimal)"},
+    {"ell": 3, "m": 6, "A": [[0,0,1],[0,1,1],[1,0,1]], "B": [[0,0,1],[0,2,1],[2,0,1]], "n": 36, "k": 4, "d": 6, "fom": 4.0, "indecomposable": true, "note": "certified exact d=6 by 4 independent methods"},
+    {"ell": 6, "m": 3, "A": [[0,0,1],[0,1,1],[3,0,1]], "B": [[0,1,1],[1,0,1],[2,0,1]], "n": 36, "k": 4, "d": 6, "fom": 4.0, "indecomposable": true, "note": "certified exact (MILP exact=True all 8 logicals)"},
+    {"ell": 6, "m": 3, "A": [[0,0,1],[0,2,1],[3,0,1]], "B": [[0,1,1],[1,0,1],[2,0,1]], "n": 36, "k": 4, "d": 6, "fom": 4.0, "indecomposable": null, "note": "certified exact; may coincide with the other (6,3) [[36,4,6]] under relabeling"}
+  ],
+  "upper_bound": [
+    {"ell": 12, "m": 6, "A": [[0,1,1],[0,2,1],[3,0,1]], "B": [[0,3,1],[1,0,1],[2,0,1]], "n": 144, "k": 8, "d_le": 12, "fom_le": 8.0, "note": "highest trustworthy FOM (ceiling); GUF+MILP+ISD converge on 12, none certified"},
+    {"ell": 6, "m": 12, "A": [[0,5,1],[0,10,1],[3,0,1]], "B": [[0,3,1],[1,0,1],[2,0,1]], "n": 144, "k": 8, "d_le": 12, "fom_le": 8.0, "note": "upper bound; d<=12 multi-method"},
+    {"ell": 9, "m": 6, "A": [[0,2,1],[0,4,1],[4,0,1]], "B": [[0,3,1],[1,0,1],[2,0,1]], "n": 108, "k": 6, "d_le": 12, "fom_le": 8.0, "note": "upper bound; d<=12 multi-method"},
+    {"ell": 9, "m": 6, "A": [[0,2,1],[3,0,1],[8,1,1]], "B": [[0,3,1],[1,0,1],[2,0,1]], "n": 108, "k": 6, "d_le": 11, "d_ge": 7, "fom_le": 6.72, "note": "d bracketed in [7,11]: d>=7 CERTIFIED (all logicals infeasible at w<=6), d<=11 multi-method"},
+    {"ell": 6, "m": 12, "A": [[0,5,1],[0,10,1],[1,0,1]], "B": [[0,3,1],[1,0,1],[2,0,1]], "n": 144, "k": 6, "d_le": 10, "fom_le": 4.17, "note": "upper bound; d<=10 multi-method"}
+  ],
+  "refuted_incumbents": [
+    {"ell": 9, "m": 6, "A": [[0,2,1],[0,4,1],[2,0,1]], "B": [[0,3,1],[1,0,1],[2,0,1]], "n": 108, "k": 6, "claimed_d": 15, "corrected_d_le": 12, "note": "MILP incumbent d<=15 was LOOSE; weight-12 logical found by 2 independent methods. FOM 12.5 -> <=8.0"},
+    {"ell": 6, "m": 12, "A": [[0,4,1],[0,8,1],[1,0,1]], "B": [[0,3,1],[1,0,1],[2,0,1]], "n": 144, "k": 6, "claimed_d": 16, "corrected_d_le": 12, "note": "loose incumbent; weight-12 logical found independently. FOM 10.67 -> <=6.0"},
+    {"ell": 9, "m": 6, "A": [[0,1,1],[0,2,1],[4,0,1]], "B": [[0,3,1],[1,0,1],[2,0,1]], "n": 108, "k": 6, "claimed_d": 13, "corrected_d_le": 12, "note": "loose incumbent; d<=12. FOM 9.39 -> <=8.0"}
+  ]
+}

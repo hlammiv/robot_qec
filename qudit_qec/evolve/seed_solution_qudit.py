@@ -49,6 +49,12 @@ STRUCTURAL_SEEDS = [
     {"ell": 15, "m": 12,
      "A_terms": [(0, 0, 1), (0, 1, 1), (0, 2, 1)],
      "B_terms": [(0, 0, 1), (5, 0, 1), (10, 0, 1)]},
+    # GF(3)-verified discovery: [[72,6,8]]_3 (mixed-monomial x^5*y term), the
+    # highest CERTIFIED-EXACT FOM (5.33) from the GF(3) baseline sweep + independent
+    # verification (see results/gf3_report.md). A good qutrit-specific seed.
+    {"ell": 6, "m": 6,
+     "A_terms": [(0, 2, 1), (3, 0, 1), (5, 1, 1)],
+     "B_terms": [(0, 3, 1), (1, 0, 1), (2, 0, 1)]},
 ]
 
 

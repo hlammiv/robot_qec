@@ -31,3 +31,6 @@ env/
 /tmp/
 *.log
 scratch/
+
+# GF(3) sweep intermediate shards (merged into results/gf3_catalog.json)
+results/gf3_shards/
