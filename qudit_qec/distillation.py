@@ -531,11 +531,14 @@ class MagicYield:
     caveats: list = field(default_factory=list)
 
 
-def _strange_conditions(we: WeightEnumerator):
+def _strange_conditions(we: WeightEnumerator, compute_threshold: bool = True):
     """Evaluate arXiv:2408.00436 conditions (1),(2),(cubic) and threshold for p=3.
 
     Returns ``(distills, nu, threshold, info)``.  ``nu`` is the noise-suppression
     exponent read from the lowest power of eps dividing ``3A(z(eps))+B(z(eps))``.
+    ``compute_threshold=False`` skips the (expensive) ``sympy.solve`` threshold root
+    finding -- the cheap path used by the strange/QR discovery sub-arm, which screens
+    many codes on ``nu`` + the two conditions before solving thresholds.
     """
     import sympy as sp
 
@@ -576,15 +579,16 @@ def _strange_conditions(we: WeightEnumerator):
 
     # threshold eps_*: smallest positive real root of eps'(eps) = eps with eps'<eps below.
     threshold = None
-    try:
-        # eps'(eps) = 3*(3A+B)/(4B), per msd-formula
-        epsp = sp.simplify(3 * (3 * A + B).subs(z, zeps) / (4 * B.subs(z, zeps)))
-        roots = sp.solve(sp.Eq(epsp, eps), eps)
-        cand = [sp.re(r) for r in roots if abs(sp.im(sp.N(r))) < 1e-9 and 0 < sp.re(sp.N(r)) < 1]
-        if cand:
-            threshold = float(min(sp.N(c) for c in cand))
-    except Exception:
-        threshold = None
+    if compute_threshold:
+        try:
+            # eps'(eps) = 3*(3A+B)/(4B), per msd-formula
+            epsp = sp.simplify(3 * (3 * A + B).subs(z, zeps) / (4 * B.subs(z, zeps)))
+            roots = sp.solve(sp.Eq(epsp, eps), eps)
+            cand = [sp.re(r) for r in roots if abs(sp.im(sp.N(r))) < 1e-9 and 0 < sp.re(sp.N(r)) < 1]
+            if cand:
+                threshold = float(min(sp.N(c) for c in cand))
+        except Exception:
+            threshold = None
 
     info = {
         "cond1_B(-1/2)!=0": bool(cond1),
@@ -601,6 +605,7 @@ def magic_state_yield(
     mode: str = "auto",
     d: Optional[int] = None,
     generators=None,
+    compute_threshold: bool = True,
 ) -> MagicYield:
     """Yield parameter ``gamma`` (and threshold where cheap) for an MSD routine.
 
@@ -688,7 +693,7 @@ def magic_state_yield(
             f"prime p, or extend the formalism for other dimensions first."
         )
     we = weight_enumerator(code, p=p)
-    distills, nu, threshold, info = _strange_conditions(we)
+    distills, nu, threshold, info = _strange_conditions(we, compute_threshold=compute_threshold)
     n, k = we.n, we.k
     if nu and nu >= 1 and k > 0 and n > 0:
         gamma = math.log(n / k) / math.log(nu) if nu > 1 else math.inf

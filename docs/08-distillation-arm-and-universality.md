@@ -63,6 +63,37 @@ Reuse the genotype → evaluate → catalog skeleton; swap the family and object
 - Composite `Z_d` wrapper: +1 d, **new** (the CRT path is BB-hardwired — `crt.evaluate_crt_candidate` consumes `(ell,m,A,B)` BB pairs, *not* raw `H`; cannot be billed as reuse).
 - **Total ~6.5–9 days** full.
 
+## Build status — both arms are now implemented
+
+Two complementary discovery arms are built and validated (the planned objective
+split — yield `γ` vs strange/QR threshold as *separate axes* — is realized as two
+modules):
+
+- **d=2 triorthogonal `T`-gate arm** (`qudit_qec/distill_discovery.py`, general
+  prime `p`): genotype = the block-triorthogonal family `T(p,m,k) → [[p²m−k, k, 2]]_p`
+  (validated to reproduce arXiv:2403.06228 *and* generalized to every prime by the
+  exact cubic gate), re-validated mutation operators, honest distance provenance
+  (`known`/`upper`/opt-in `trusted`), `DistillCatalog` (Pareto on n/k/d, `γ` ranking),
+  bounded `search_distill`. Driver: `scripts/distill_discover.py`. The honest d=2
+  per-qudit frontier is `[[13,5,2]]_3` (`γ=1.379`).
+- **d>2 strange-state / QR sub-arm** (`qudit_qec/distill_strange.py`, qutrit):
+  genotype = self-orthogonal **cyclic codes over `F_3`**; CSS distiller `Hx=Hz=C` of
+  the strange state, validity + `ν` from the validated weight-enumerator pipeline.
+  **Reproduces the 11-qutrit Golay `[[11,1,5]]_3`** (cubic `ν=3`, threshold ≈0.387) —
+  beating the d=2 family on noise suppression (`ν=3` vs `ν=2`). Cheap `Fraction`
+  condition screen + opt-in sympy threshold; compute-gated to ~Golay-sized enum
+  locally. Driver: `scripts/distill_strange_search.py`.
+  **Honest finding:** the small-`n` self-orthogonal *cyclic* `F_3` family is **sparse**
+  (no distiller at `n=5,7,13`-local; only the two QR Golay codes at `n=11`).
+  Broadening to non-cyclic self-orthogonal codes and `n>13` (`3^{n−k}` over the local
+  enum cap) is the **lenore-scale** extension; the QR-over-`F_{d²}` `ι⁻¹` map of
+  arXiv:2408.00436 remains a future generalization.
+
+Still open from this list: the d>2 **triorthogonal** route (punctured-RM, general
+prime) — naive full-cube RM gives a strict triorthogonal *space* with no magic rows
+(confirmed in-repo), so it needs the careful magic-row puncturing the qubit
+`[[15,1,3]]` exemplifies; not yet built.
+
 ## Compute safety (after the 2026-06-14 OOM crash)
 
 - Strange-mode weight enumeration is `p^{n−k}` — `3^{n−1}` is **4.8M at n=14**, **31 billion at n=23**. The v0 already caps at `1e6` and refuses; the *plan* must **hard-gate local strange-mode to `n≤13`** and route larger weight-enumerator/distance work to **lenore_remote**. Tier-1 (`γ` with distance passed as an argument) is the only local objective.

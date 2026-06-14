@@ -1,0 +1,31 @@
+{
+  "config": {
+    "n_min": 5,
+    "n_max": 13,
+    "refine": 5,
+    "local_enum_cap": 60000
+  },
+  "golay_reproduced": true,
+  "codes": [
+    {
+      "p": 3,
+      "n": 11,
+      "k": 1,
+      "nu": 3,
+      "distills": true,
+      "threshold": 0.3872,
+      "min_stabilizer_weight": 6,
+      "sound": true
+    },
+    {
+      "p": 3,
+      "n": 11,
+      "k": 1,
+      "nu": 3,
+      "distills": true,
+      "threshold": 0.3872,
+      "min_stabilizer_weight": 6,
+      "sound": true
+    }
+  ]
+}

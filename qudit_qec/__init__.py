@@ -18,6 +18,7 @@ from . import (
     construct,
     crt,
     distill_discovery,
+    distill_strange,
     distillation,
     distance,
     distance_milp,
@@ -50,6 +51,13 @@ from .distill_discovery import (
     evaluate_distill_candidate,
     search_distill,
     triortho_family,
+)
+from .distill_strange import (
+    StrangeCatalog,
+    StrangeResult,
+    evaluate_strange_candidate,
+    search_strange_cyclic,
+    self_orthogonal_cyclic_codes,
 )
 from .distance import compute_distance_exact, decoder_bound, qdistrnd_bound
 from .distance_milp import (
@@ -98,12 +106,19 @@ __all__ = [
     "distillation",
     "universality",
     "distill_discovery",
-    # distillation discovery arm
+    "distill_strange",
+    # distillation discovery arm (d=2 triorthogonal, general prime)
     "triortho_family",
     "evaluate_distill_candidate",
     "DistillResult",
     "DistillCatalog",
     "search_distill",
+    # strange/QR distillation sub-arm (d>2, qutrit)
+    "self_orthogonal_cyclic_codes",
+    "evaluate_strange_candidate",
+    "search_strange_cyclic",
+    "StrangeResult",
+    "StrangeCatalog",
     # construct
     "validate_terms",
     "build_bb_code",
