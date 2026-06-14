@@ -16,6 +16,15 @@ perturbed-bivariate-bicycle (PBB) quantum LDPC codes over `F_2[x,y]/(x^ℓ-1, y^
 with a staged validation pipeline (GF(2) rank → BP-OSD → MILP exact distance,
 BLISS Tanner-graph dedup, Clifford-equivalence).
 
+## Magic-state-distillation papers (added for the MSD scoping, `docs/07`)
+
+Qudit/qutrit magic-state-distillation cluster (source tarballs gitignored; referenced by arXiv ID):
+- **2403.06228** — Low Overhead Qutrit Magic State Distillation (triorthogonal `[[9m−k,k,2]]₃`)
+- **2408.00436** — A Search for High-Threshold Qutrit MSD Routines (weight-enumerator ⇒ performance)
+- **2510.10852** — Sublogarithmic Distillation in all Prime Dimensions (punctured Reed–Muller)
+- **2603.18560** — High-threshold MSD with quantum quadratic-residue codes
+- **2605.30108** — Asymptotic magic state distillation with almost-linear rate
+
 ## Reference code repository (the repo the paper "talks about")
 
 `qcode-discovery` — https://github.com/qiskit-community/qcode-discovery

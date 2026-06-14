@@ -5,6 +5,7 @@
 # The arXiv source is fetched locally for ingestion; we reference it by ID instead.
 literature/*.tar.gz
 literature/extracted/
+literature/extracted_distill/
 
 # --- Reference repo (cloned as a sibling, never vendored here) ---
 qcode-discovery/

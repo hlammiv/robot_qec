@@ -43,7 +43,8 @@ robot_qec/
 │   ├── 03-qudit-extension-scope.md    the math framing + per-module change inventory
 │   ├── 04-implementation-roadmap.md   phased plan to an MVP and beyond
 │   ├── 05-arbitrary-dimension-crt.md  spanning all dimensions via CRT factoring
-│   └── 06-qudit-literature.md         cited landscape of qudit QEC, by dimension + novelty
+│   ├── 06-qudit-literature.md         cited landscape of qudit QEC, by dimension + novelty
+│   └── 07-magic-state-distillation-scope.md   scoping a "can this code distill?" capability
 ├── workflows/                    ← the multi-agent LLM workflow(s) used to produce the above
 │   ├── README.md
 │   └── qudit-qec-scope.js
