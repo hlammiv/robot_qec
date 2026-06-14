@@ -18,7 +18,9 @@ Status: **✅ implemented** · 🔜 next · — deferred.
 | ✅ `distance.py` | `evaluation/distance.py` | `decoder_bound` gates BP-OSD on `field.order==2`, kwarg-free GUF for q>2 (cheap, loose pre-filter); `compute_distance_exact` (forked, OS-timeout) | 2 ✓ |
 | ✅ `distance_milp.py` | `evaluation/distance_milp.py` | **Prime-q** mod-q MILP (`−q` slack, big-M weight indicator, `L·x=1` unit-scaling, prime guard) — the trusted signal | 2 ✓ |
 | ✅ `distance_qudit.py` *(new)* | — | `code_distance` + `DistanceResult`: GUF pre-filter → MILP trusted ranking → exact corroboration; trust gate | 2 ✓ |
-| `evaluator.py` | `evaluation/evaluator.py` | Field-threaded cascade; MILP-corroboration trust gate; coeff-aware keys; `A==B⇒d=2` gated on q==2 | 3 ✓ |
+| ✅ `evaluator.py` | `evaluation/evaluator.py` | `evaluate_candidate(field=q)` cascade (validate→k→bound/MILP→FOM); `EvalResult` with trust gate, `self_dual` marker, coeff-aware key | 3 ✓ |
+| ✅ `structure.py` *(new)* | (part of `tanner_equivalence`) | Tanner-graph decomposability (union-find): `is_decomposable`/`connected_components` — direct-sum detection, field-agnostic | 3 ✓ |
+| ✅ `results.py` | `evaluation/results.py` | `CodeCatalog`: coeff-aware dedup (records q), Pareto front (n/k/d), best-by-FOM | 3 ✓ |
 | `evolve/` | `seed_solution*.py`, `openevolve_evaluator*.py`, `prompt_context*.md`, `config*.yaml` | Coeff-bearing seeds + mutation, `QCODE_FIELD` plumbing, GF(q) prompts/baselines, retuned thresholds | 4 ✓ |
 | `pbb_construct.py` | `evaluation/pbb_code.py` | One-line `[Bᵀ,−Aᵀ]%q` sign fix + `field=q`; in-field commutativity | 5 — |
 | `dedup.py` | `evaluation/tanner_equivalence.py` | BLISS **structural value-gadget** encoding GF(q) edge coefficients | 6 — |

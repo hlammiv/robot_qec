@@ -19,8 +19,11 @@ from . import (
     distance,
     distance_milp,
     distance_qudit,
+    evaluator,
     field_utils,
     genotype,
+    results,
+    structure,
 )
 from .construct import (
     build_bb_code,
@@ -31,6 +34,9 @@ from .construct import (
 from .distance import compute_distance_exact, decoder_bound
 from .distance_milp import compute_distance_milp, ilp_min_weight
 from .distance_qudit import DistanceResult, code_distance
+from .evaluator import EvalResult, evaluate_candidate
+from .results import CodeCatalog
+from .structure import connected_components, is_decomposable, num_connected_components
 from .field_utils import (
     assert_is_stabilizer_code,
     combine_like_terms,
@@ -60,6 +66,9 @@ __all__ = [
     "distance",
     "distance_milp",
     "distance_qudit",
+    "evaluator",
+    "results",
+    "structure",
     # construct
     "validate_terms",
     "build_bb_code",
@@ -89,4 +98,11 @@ __all__ = [
     "poly_key",
     "pair_key",
     "tuple_key",
+    # evaluator / results / structure
+    "evaluate_candidate",
+    "EvalResult",
+    "CodeCatalog",
+    "is_decomposable",
+    "connected_components",
+    "num_connected_components",
 ]
