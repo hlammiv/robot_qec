@@ -275,6 +275,17 @@ def test_strange_mode_rejects_non_qutrit():
         dist.magic_state_yield(_Dummy(), p=5, mode="strange")
 
 
+def test_weight_enum_dependent_rows_no_overcount():
+    """Linearly dependent generator rows must NOT inflate A(z): |S| = p^rank, not
+    p^(#rows) (regression for the overcount in _stabilizer_simple_weight_enum)."""
+    # row3 = row1 + row2 over GF(3): 3 nonzero rows, rank 2 -> |S| must be 3^2 = 9.
+    hx = np.array([[1, 0, 0], [0, 1, 0], [1, 1, 0]])
+    hz = np.zeros((0, 3), dtype=int)
+    A = dist._stabilizer_simple_weight_enum(hx, hz, 3, 3, None)
+    assert sum(A) == 9        # not 27 (= 3^3, the bug)
+    assert A[0] == 1
+
+
 def test_weight_enumerator_rejects_non_prime():
     """weight_enumerator must refuse prime-power / composite dimension."""
     class _Dummy:

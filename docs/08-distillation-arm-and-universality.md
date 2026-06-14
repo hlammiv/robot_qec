@@ -74,8 +74,12 @@ modules):
   (validated to reproduce arXiv:2403.06228 *and* generalized to every prime by the
   exact cubic gate), re-validated mutation operators, honest distance provenance
   (`known`/`upper`/opt-in `trusted`), `DistillCatalog` (Pareto on n/k/d, `γ` ranking),
-  bounded `search_distill`. Driver: `scripts/distill_discover.py`. The honest d=2
-  per-qudit frontier is `[[13,5,2]]_3` (`γ=1.379`).
+  bounded `search_distill`. Driver: `scripts/distill_discover.py`. Within the default
+  `m≤2` sweep the best per-qudit yield is `[[13,5,2]]_3` (`γ=1.379`), but the family's
+  `γ` **decreases monotonically toward 1 as `m` grows** (optimal `k=pm−1`; e.g.
+  `[[19,8,2]]_3 γ=1.248`, `[[31,14,2]]_3 γ=1.147`) — so there is no finite d=2 frontier,
+  only the asymptote; beating it on *noise suppression* (not just overhead) needs
+  `d>2`.
 - **d>2 strange-state / QR sub-arm** (`qudit_qec/distill_strange.py`, qutrit):
   genotype = self-orthogonal **cyclic codes over `F_3`**; CSS distiller `Hx=Hz=C` of
   the strange state, validity + `ν` from the validated weight-enumerator pipeline.

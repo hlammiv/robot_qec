@@ -424,13 +424,21 @@ def _stabilizer_simple_weight_enum(hx, hz, p, n, k):
     import galois
 
     GF = galois.GF(p)
-    Hx = GF(hx % p)
-    Hz = GF(hz % p)
-    # reduce to row bases so the count is p^rank
-    Hx_b = Hx[~np.all(np.asarray(Hx) == 0, axis=1)] if Hx.shape[0] else Hx
-    Hz_b = Hz[~np.all(np.asarray(Hz) == 0, axis=1)] if Hz.shape[0] else Hz
-    rx = int(np.linalg.matrix_rank(Hx_b)) if Hx_b.shape[0] else 0
-    rz = int(np.linalg.matrix_rank(Hz_b)) if Hz_b.shape[0] else 0
+
+    def _row_basis(M):
+        """A linearly independent row basis (row-reduced, zero rows dropped). Must
+        reduce to a TRUE basis -- enumerating p^(#rows) over linearly *dependent* rows
+        would span the row space p^(rows-rank) times and overcount every A(z) coeff."""
+        if M.shape[0] == 0:
+            return GF(np.zeros((0, M.shape[1]), dtype=int))
+        R = GF(M % p).row_reduce()
+        nz = ~np.all(np.asarray(R) == 0, axis=1)
+        return R[nz]
+
+    Hx_b = _row_basis(np.asarray(hx))
+    Hz_b = _row_basis(np.asarray(hz))
+    rx = Hx_b.shape[0]
+    rz = Hz_b.shape[0]
     total = p**rx * p**rz
     if total > MAX_ENUM:
         raise ValueError(
@@ -577,16 +585,27 @@ def _strange_conditions(we: WeightEnumerator, compute_threshold: bool = True):
 
     distills = bool(cond1 and cond2 and (nu is not None and nu >= 2))
 
-    # threshold eps_*: smallest positive real root of eps'(eps) = eps with eps'<eps below.
+    # threshold eps_*: the distillation fixed point -- a root of eps'(eps)=eps in (0,1)
+    # that is genuinely *attracting from below* (eps'(eps) < eps just under the root),
+    # i.e. inputs below it improve. Taking the smallest interior root is right when
+    # there is a single one (the usual case); if a code ever yields two interior roots
+    # (a stable/unstable pair) we keep only the ones that are attracting from below so
+    # the unstable fixed point is not mis-reported as the threshold.
     threshold = None
     if compute_threshold:
         try:
             # eps'(eps) = 3*(3A+B)/(4B), per msd-formula
             epsp = sp.simplify(3 * (3 * A + B).subs(z, zeps) / (4 * B.subs(z, zeps)))
             roots = sp.solve(sp.Eq(epsp, eps), eps)
-            cand = [sp.re(r) for r in roots if abs(sp.im(sp.N(r))) < 1e-9 and 0 < sp.re(sp.N(r)) < 1]
+            cand = [float(sp.re(sp.N(r))) for r in roots
+                    if abs(sp.im(sp.N(r))) < 1e-9 and 0 < sp.re(sp.N(r)) < 1]
+            if len(cand) > 1:
+                # ambiguous: keep only fixed points attracting from below (eps'<eps just
+                # under the root) so an unstable root isn't mis-reported as the threshold.
+                cand = [e0 for e0 in cand
+                        if float(sp.re(sp.N(epsp.subs(eps, e0 * 0.99)))) < e0 * 0.99] or cand
             if cand:
-                threshold = float(min(sp.N(c) for c in cand))
+                threshold = float(min(cand))
         except Exception:
             threshold = None
 

@@ -143,9 +143,13 @@ def _cheap_strange_conditions(A: list, B: list, n: int) -> tuple:
     Bd = sum(i * Fraction(int(c)) * half ** (i - 1) for i, c in enumerate(B) if i >= 1)
     cond1 = Bm != 0                       # B(-1/2) != 0
     cond2 = (3 * Ad + Bd) == 0            # 3A'+B' = 0  -> >= quadratic
-    cond0 = (3 * Am + Bm) == 0            # 3A+B = 0    -> auto for odd n
-    distills = bool(cond1 and cond2)
-    nu_hint = 3 if (distills and n % 2 == 1 and cond0) else (2 if distills else None)
+    cond0 = (3 * Am + Bm) == 0            # 3A+B = 0    (P vanishes at the fixed point)
+    # nu = order of vanishing of P=3A+B at z0=-1/2 needs BOTH P(z0)=0 (cond0) AND
+    # P'(z0)=0 (cond2) to reach >=2; cond2 alone does NOT force cond0 (it can fail for
+    # k>=2 codes). Require cond0 so this matches the sympy verdict exactly and nu_hint
+    # stays a true LOWER bound, not an overstatement.
+    distills = bool(cond1 and cond2 and cond0)
+    nu_hint = (3 if (distills and n % 2 == 1) else (2 if distills else None))
     info = {"B(-1/2)!=0": cond1, "3A'+B'(-1/2)=0": cond2, "3A+B(-1/2)=0": cond0,
             "nu_lower_bound": nu_hint}
     return distills, nu_hint, info
@@ -190,7 +194,7 @@ def evaluate_strange_candidate(
     p: int = _P,
     *,
     compute_threshold: bool = False,
-    max_enum: int = MAX_ENUM,
+    max_enum: int = LOCAL_ENUM_DEFAULT,
 ) -> StrangeResult:
     """Validate + score a strange-state distillation candidate (qutrit only).
 
@@ -207,7 +211,11 @@ def evaluate_strange_candidate(
                              True, "strange route is qutrit-only (p=3)")
     # build / accept the CSS code
     if hasattr(code_or_G, "matrix_x") or hasattr(code_or_G, "num_qudits"):
-        code, key = code_or_G, ("css", id(code_or_G))
+        # content key (NOT id(): addresses are reused after GC -> false catalog
+        # collisions). For a strange distiller Hx=Hz=C, key on the X-stabilizer C so
+        # the key matches the generator-matrix path and stays rebuildable.
+        code = code_or_G
+        key = _genotype_key(np.asarray(code.matrix_x, dtype=int), p)
     else:
         G = np.asarray(code_or_G, dtype=int) % p
         if not _is_self_orthogonal(G, p):

@@ -121,7 +121,7 @@
       "distills": true,
       "trusted": true,
       "sound": true,
-      "op": "direct_sum"
+      "op": "permute"
     },
     {
       "p": 3,
@@ -236,10 +236,10 @@
       "n": 29,
       "k": 7,
       "d": 2,
-      "d_status": "known",
+      "d_status": "upper",
       "gamma": 2.0506,
       "distills": true,
-      "trusted": true,
+      "trusted": false,
       "sound": true,
       "op": "direct_sum"
     },
@@ -248,10 +248,10 @@
       "n": 22,
       "k": 5,
       "d": 2,
-      "d_status": "known",
+      "d_status": "upper",
       "gamma": 2.1375,
       "distills": true,
-      "trusted": true,
+      "trusted": false,
       "sound": true,
       "op": "direct_sum"
     },

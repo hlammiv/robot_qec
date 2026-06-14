@@ -48,6 +48,17 @@ def test_family_rejects_bad_params():
         dd.triortho_family(3, 1, 3)          # k > p*m - 1
 
 
+def test_family_rejects_p2_m_ge_2():
+    # the block construction needs Sum_j j = 0 mod p, which fails at p=2 (Sum j = 1):
+    # triortho_family(2,2,*) is NOT triorthogonal, so the constructor must refuse p=2.
+    import numpy as np
+    with pytest.raises(ValueError):
+        dd.triortho_family(2, 2, 1)
+    # and any p=2 family matrix that one might build by hand is not a triortho matrix
+    # (regression guard against re-introducing a silently-empty p=2 search)
+    assert dd.reed_muller_triortho(2, 4, 1).shape[1] == 15   # the correct qubit route
+
+
 # --------------------------------------------------------------------------- #
 # Reed-Muller constructor -- the d>2 triorthogonal route
 # --------------------------------------------------------------------------- #
@@ -113,6 +124,28 @@ def test_non_prime_flagged_not_sound():
     M = np.array([[0, 1, 2, 3], [1, 1, 0, 0]])   # GF(4) matrix
     r = dd.evaluate_distill_candidate(M, 4, d=2)
     assert r.sound is False
+
+
+def test_non_prime_with_magic_row_rejects_cleanly():
+    # a non-prime matrix CAN pass the mod-p triorthogonality gate (e.g. [[1,1,1]] over
+    # p=4 has a mod-4 magic row) -- the evaluator must reject cleanly, not crash in
+    # _require_prime.
+    r = dd.evaluate_distill_candidate(np.array([[1, 1, 1]]), 4, d=2)
+    assert r.rejected is True and "non-prime" in r.reason and r.sound is False
+
+
+def test_scale_partition_change_marks_distance_unknown():
+    # non-uniform column scaling can flip a row's cube (magic<->H0), changing the code;
+    # mutate must then NOT claim a known distance (regression for the laundering bug).
+    rng = np.random.default_rng(0)
+    H = dd.triortho_family(3, 2, 4)
+    saw_unknown = False
+    for _ in range(60):
+        cand, op, dstat, dhint = dd.mutate(H, 3, rng, parent_d=2)
+        if op == "scale" and dd._cube_partition(cand, 3) != dd._cube_partition(H, 3):
+            assert dstat == "unknown" and dhint is None
+            saw_unknown = True
+    assert saw_unknown, "expected at least one partition-changing scale in 60 tries"
 
 
 # --------------------------------------------------------------------------- #

@@ -105,6 +105,17 @@ def _golay_AB(G):
     return we.A, we.B
 
 
+def test_cheap_conditions_require_cond0():
+    # cond2 (3A'+B'=0) alone does NOT imply distillation: nu>=2 also needs cond0
+    # (3A+B(-1/2)=0). A case with cond2 True but cond0 False must screen as NON-distilling
+    # and report no nu (regression for the cheap-screen false positive / nu overstatement).
+    A = [1, 0, 4]
+    B = [1, 12, 0]          # 3A+B has P'(-1/2)=0 but P(-1/2)=1 != 0  (cond0 fails)
+    distills, nu_hint, info = ds._cheap_strange_conditions(A, B, n=4)
+    assert info["3A'+B'(-1/2)=0"] is True and info["3A+B(-1/2)=0"] is False
+    assert distills is False and nu_hint is None
+
+
 # --------------------------------------------------------------------------- #
 # Catalog + search
 # --------------------------------------------------------------------------- #

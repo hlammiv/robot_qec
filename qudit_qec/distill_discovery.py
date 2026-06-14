@@ -18,8 +18,10 @@ The seed family is the **general prime-p block-triorthogonal family**
 a length-``p^2 m`` triorthogonal *matrix* with ``k`` magic (``H_1``) rows and a
 transversal third-level ``T = sum_j exp(2*pi*i*j/p^2)|j><j|`` gate.  For ``p=3`` this
 is exactly the validated arXiv:2403.06228 family (``[[20,7,2]]_3`` ``gamma=1.51``,
-``[[14,4,2]]_3`` ``gamma=1.81``); the generalization to every prime is verified by
-``is_triorthogonal`` (see ``tests/test_distill_discovery.py``).  On top of the family
+``[[14,4,2]]_3`` ``gamma=1.81``); the generalization to every **odd** prime is verified
+by ``is_triorthogonal`` (see ``tests/test_distill_discovery.py``).  (``p=2`` is
+excluded -- the block construction needs ``Σ j ≡ 0 mod p``, which fails at 2; qubits
+use :func:`reed_muller_triortho`.)  On top of the family
 the arm applies mutation operators (column permutation, direct sum, puncturing,
 column scaling) -- **every candidate is re-validated by the exact cubic gate**, so
 nothing in the catalog is triorthogonal-by-assumption.
@@ -98,9 +100,18 @@ def triortho_family(p: int, m: int, k: int) -> np.ndarray:
     to create ``k`` magic (nonzero-cube) rows.  Valid (``is_triorthogonal`` matrix
     with self-orthogonal ``H_0``) for ``1 <= k <= p*m - 1``.  ``p=3`` reproduces the
     arXiv:2403.06228 qutrit family exactly.
+
+    **Odd primes only.**  The off-diagonal triples vanish because
+    ``Σ_{j=0}^{p-1} j ≡ Σ j^2 ≡ Σ j^3 ≡ 0 (mod p)`` -- true for every *odd* prime but
+    **false for ``p=2``** (``Σ j = 1 mod 2``), so the construction is not triorthogonal
+    for ``p=2, m>=2``.  For qubits use :func:`reed_muller_triortho` (the ``[[15,1,3]]``
+    route) instead.
     """
-    if not is_prime(p):
-        raise ValueError(f"triortho_family is defined for prime p; got p={p}")
+    if not is_prime(p) or p == 2:
+        raise ValueError(
+            f"triortho_family is defined for ODD primes (Σj≡Σj²≡Σj³≡0 mod p fails at "
+            f"p=2); got p={p}. For qubits use reed_muller_triortho (the [[15,1,3]] route)."
+        )
     if m < 1:
         raise ValueError(f"need m >= 1; got m={m}")
     nblocks = p * m
@@ -215,11 +226,27 @@ def mutate(H, p: int, rng, *, parent_d: Optional[int] = None) -> tuple[np.ndarra
         return permute_columns(M, rng.permutation(n), p), op, "known", parent_d
     if op == "scale":
         scales = rng.integers(1, p, size=n)            # nonzero scalars
-        return scale_columns(M, scales, p), op, "known", parent_d
+        cand = scale_columns(M, scales, p)
+        # A monomial transform preserves the code distance ONLY when it preserves the
+        # zero-cube (H_0) / magic (H_1) partition -- non-uniform scaling can flip a
+        # row's cube (the cube is a SUM Σ_i s_i^3 h_i^3, not s^3·Σ h_i^3), even at p=3
+        # (e.g. (1,1,0) cube=2 -> scaled (1,2,0) cube=0). If the partition changes the
+        # built CSS code differs, so the parent distance no longer applies.
+        if _cube_partition(M, p) == _cube_partition(cand, p):
+            return cand, op, "known", parent_d          # genuine monomial equivalence
+        return cand, op, "unknown", None                # different code -> distance unknown
     # puncture 1..2 columns
     npunc = int(rng.integers(1, 3))
     cols = rng.choice(n, size=min(npunc, n - 1), replace=False)
     return puncture_columns(M, cols, p), op, "upper", parent_d
+
+
+def _cube_partition(M, p: int) -> frozenset:
+    """The set of row indices with nonzero self-cube (the magic/H_1 rows). Distance is
+    preserved under column scaling iff this partition is unchanged."""
+    A = _as_matrix(M, p)
+    return frozenset(r for r in range(A.shape[0])
+                     if int(np.sum((A[r] * A[r] * A[r]) % p)) % p != 0)
 
 
 # --------------------------------------------------------------------------- #
@@ -291,6 +318,12 @@ def evaluate_distill_candidate(
     kappa = M.shape[0]
     key = genotype_key(M, p)
 
+    if not is_prime(p):
+        # the arm is prime-p only; a non-prime matrix can still carry a mod-p magic
+        # row (so the gate would pass) but magic_state_yield is unsound there -- reject
+        # cleanly rather than crash in _require_prime.
+        return DistillResult(p, n, kappa, 0, None, "unknown", None, False, False,
+                             False, op, key, True, "non-prime p (arm is prime-p only)")
     if n > max_n:
         return DistillResult(p, n, kappa, 0, None, "unknown", None, False, False,
                              is_prime(p), op, key, True, f"n>{max_n} (compute cap)")
@@ -351,8 +384,12 @@ def _better(a: DistillResult, b: DistillResult) -> bool:
 
 def _dominates(a: DistillResult, b: DistillResult) -> bool:
     """``a`` dominates ``b``: no worse on (n smaller, k larger, d larger), better on
-    one.  Only over candidates with a known distance."""
+    one.  ``a`` may dominate on distance only if its distance is real (``known``/
+    ``trusted``); an ``upper``-status ``a.d`` is optimistic, so it must not be allowed
+    to dominate a certified code on ``d``."""
     if a.d is None or b.d is None:
+        return False
+    if a.d_status not in ("known", "trusted"):
         return False
     no_worse = a.n <= b.n and a.k >= b.k and a.d >= b.d
     strictly = a.n < b.n or a.k > b.k or a.d > b.d
@@ -393,8 +430,11 @@ class DistillCatalog:
         return [a for a in codes if not any(_dominates(b, a) for b in codes if b is not a)]
 
     def best_by_gamma(self, top: Optional[int] = None) -> list:
-        """Known-gamma codes sorted by yield ascending (lower gamma first)."""
-        ranked = sorted(self.with_gamma(), key=lambda r: (r.gamma, r.n, -r.k))
+        """Known-gamma codes sorted by yield ascending (lower gamma first), with
+        trusted-distance codes ahead of optimistic (``upper``) ones at equal standing
+        so an untrusted lower-bound gamma never outranks a certified result."""
+        ranked = sorted(self.with_gamma(),
+                        key=lambda r: (not r.trusted, r.gamma, r.n, -r.k))
         return ranked[:top] if top is not None else ranked
 
 
@@ -452,15 +492,24 @@ def search_distill(
         if not pool:
             break
         idx = int(rng.integers(len(pool)))
-        H, p, pd, _pstat = pool[idx]
+        H, p, pd, pstat = pool[idx]
         # occasionally recombine two pool members of the same prime via direct sum
         if allow_direct_sum and rng.random() < 0.15:
             same = [e for e in pool if e[1] == p]
-            H2, _, pd2, _ = same[int(rng.integers(len(same)))]
+            H2, _, pd2, pstat2 = same[int(rng.integers(len(same)))]
             if H.shape[1] + H2.shape[1] <= max_n:
                 cand = direct_sum(H, H2, p)
-                cd = min(pd, pd2) if (pd is not None and pd2 is not None) else None
-                cstat, dhint = "known", cd
+                # d = min(d1,d2) is exact only if BOTH summands have a known/trusted
+                # distance; if either is an upper bound the result is too (else we'd
+                # launder an optimistic bound into a trusted gamma).
+                trusted_parents = {"known", "trusted"}
+                if pd is not None and pd2 is not None:
+                    cd = min(pd, pd2)
+                    cstat = "known" if (pstat in trusted_parents
+                                        and pstat2 in trusted_parents) else "upper"
+                else:
+                    cd, cstat = None, "unknown"
+                dhint = cd
                 op = "direct_sum"
             else:
                 continue

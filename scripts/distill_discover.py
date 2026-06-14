@@ -122,14 +122,17 @@ def write_report(path: str, known, cat: dd.DistillCatalog, args) -> None:
         "`d`-upper candidates whose gamma is optimistic.",
         "- **`direct_sum` codes are independent block-stacks of smaller members** — "
         "they have the *same* per-qudit yield gamma as their parts (e.g. `[[26,10,2]]` "
-        "= two `[[13,5,2]]`), so they are not genuinely better distillers. The honest "
-        "per-qudit frontier in this d=2 regime is the **family** member"
+        "= two `[[13,5,2]]`), so they are not genuinely better distillers. The best "
+        "per-qudit family member in THIS run is"
         + (f" `[[{best_fam.n},{best_fam.k},{best_fam.d}]]_{best_fam.p}` (gamma={best_fam.gamma:.3f})"
-           if best_fam else "") + ".",
-        "- **Beating that frontier needs distance `d > 2`** (yield improves as "
-        "`log_d`): the punctured-Reed–Muller / quantum-QR families of `docs/08` — "
-        "deferred next step, not in this MVP. This arm supplies the validated "
-        "genotype→gate→yield→catalog machinery they plug into.",
+           if best_fam else " (none)")
+        + " — but this is a function of the search window: the family's gamma decreases "
+        "monotonically toward 1 as `m` grows (optimal `k=pm-1`), so there is no finite "
+        "d=2 frontier, only the asymptote.",
+        "- **Beating the d=2 regime on *noise suppression* (nu=d=2), not just overhead, "
+        "needs distance `d > 2`**: the punctured-Reed–Muller route (`reed_muller_triortho`, "
+        "validated on the qubit `[[15,1,3]]`) and the qutrit strange/QR route "
+        "(`distill_strange`, the Golay) — see `docs/08`.",
         "- Universality of the transversal T is the separate per-dimension question of "
         "`docs/08` (prime p: any non-Clifford gate is universal — sound here).",
         "",
