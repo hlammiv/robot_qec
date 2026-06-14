@@ -8,11 +8,13 @@ here as we execute `docs/04-implementation-roadmap.md`.
 Finalized by [`docs/03`](../docs/03-qudit-extension-scope.md) /
 [`docs/04`](../docs/04-implementation-roadmap.md). ✓ = MVP (CSS, prime q); — = deferred.
 
+Status: **✅ implemented** · 🔜 next · — deferred.
+
 | Planned module | Extends / replaces | Responsibility for GF(q) | Phase |
 |---|---|---|---|
-| `field_utils.py` *(new)* | — | `get_field(q)` prime-power guard, in-field `assert_is_stabilizer_code`, `terms_to_poly_q`, `combine_like_terms`; **forbids raw `%q` on FieldArrays** | 0 ✓ |
-| `genotype.py` *(new)* | exponent-tuple convention in `bb_code.py` + seeds | Term = `(x_exp, y_exp, coeff∈GF(q)*)`; `canonicalize`; reused by all cache/dedup keys | 0 ✓ |
-| `construct.py` | `evaluation/bb_code.py` | Build qudit CSS BB via `BBCode(field=q)` (qldpc auto-handles antipode/sign) | 1 ✓ |
+| ✅ `field_utils.py` | — | `get_field(q)` prime-power guard (composite→CRT), in-field `assert_is_stabilizer_code`, `terms_to_poly`, `combine_like_terms`, `to_field_element`; **forbids raw `%q` on FieldArrays** | 0 ✓ |
+| ✅ `genotype.py` | exponent-tuple convention in `bb_code.py` + seeds | Term = `(x_exp, y_exp, coeff∈GF(q))`; `canonicalize`/`poly_key`/`pair_key`/`tuple_key`; reused by all cache/dedup keys | 0 ✓ |
+| 🔜 `construct.py` | `evaluation/bb_code.py` | Build qudit CSS BB via `BBCode(field=q)` (qldpc auto-handles antipode/sign) | 1 ✓ |
 | `distance.py` | `evaluation/distance.py` | Gate BP-OSD on `field.order==2`; kwarg-free GUF bound for q>2; OS-level timeout; `q^k`-gated exact | 2 ✓ |
 | `distance_milp.py` | `evaluation/distance_milp.py` | **Prime-q** mod-q MILP (`−q` slack, big-M weight indicator, prime guard) — the trusted signal | 2 ✓ |
 | `distance_qudit.py` *(new)* | — | Dispatcher: GUF pre-filter → MILP trusted → exact corroboration | 2 ✓ |
