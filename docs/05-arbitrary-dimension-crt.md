@@ -43,11 +43,17 @@ counts over `Z_d^4`):
 - **`k` per factor:** the code encodes `kᵢ` logical `Z_{qᵢ}`-qudits in factor `i`.
   A *uniform* `d`-dimensional logical qudit exists only where the factor logicals
   line up; in general the logical space is a product of possibly-different pieces.
-- **Distance = min over factors:** `d(Z_d code) = minᵢ d(Z_{qᵢ} code)`. A
+- **Distance = min over factors:** `d(Z_d code) = minᵢ d(Z_{qᵢ} code)` for a code
+  defined by a *single* `Z_d` check matrix reduced mod each factor (our
+  construction — verified by the exact kernel factorization in the table below). A
   nontrivial logical can live entirely in the weakest factor, so a composite-`d`
   code is **only as strong as its weakest prime-power factor.** (This is the same
   phenomenon as the paper's direct-sum `[[288,24,12]] = gross ⊕ gross`
-  decomposability — CRT is a graded version of it.)
+  decomposability — CRT is a graded version of it.) *Caveat:* the broader literature
+  (ECZoo, attrib. Grassl 2024) states this only as an **upper bound** `d ≤ minᵢ dᵢ`
+  for general composite-`d` codes; equality is what holds in our reduced-construction
+  setting. So treating `minᵢ dᵢ` as an upper bound is always safe; see
+  [`docs/06`](06-qudit-literature.md).
 
 ## The one subtlety that decides the backend: square-free vs not
 

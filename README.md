@@ -41,7 +41,9 @@ robot_qec/
 │   ├── 01-reference-architecture.md   how qcode-discovery works, cluster by cluster
 │   ├── 02-grounding-experiments.md    live qldpc/galois experiments (evidence)
 │   ├── 03-qudit-extension-scope.md    the math framing + per-module change inventory
-│   └── 04-implementation-roadmap.md   phased plan to an MVP and beyond
+│   ├── 04-implementation-roadmap.md   phased plan to an MVP and beyond
+│   ├── 05-arbitrary-dimension-crt.md  spanning all dimensions via CRT factoring
+│   └── 06-qudit-literature.md         cited landscape of qudit QEC, by dimension + novelty
 ├── workflows/                    ← the multi-agent LLM workflow(s) used to produce the above
 │   ├── README.md
 │   └── qudit-qec-scope.js
@@ -67,6 +69,7 @@ literature, and synthesizes the result. See [`workflows/README.md`](workflows/RE
 - [x] Scope the qudit extension (math + per-module changes) → [`docs/03`](docs/03-qudit-extension-scope.md)
 - [x] Phased implementation roadmap → [`docs/04`](docs/04-implementation-roadmap.md)
 - [x] Arbitrary-dimension strategy (CRT factoring) → [`docs/05`](docs/05-arbitrary-dimension-crt.md)
+- [x] Cited qudit-QEC literature landscape (by dimension + novelty) → [`docs/06`](docs/06-qudit-literature.md)
 - [x] **Phase 0**: field substrate + genotype — `qudit_qec/{field_utils,genotype}.py` (round-trips GF(3)/GF(4) `[[72,·]]`, composite-`d` raises)
 - [x] **Phase 1**: CSS construction over GF(q) — `qudit_qec/construct.py` (`build_bb_code(field=q)`; coeff flip collapses `k` 8→0)
 - [x] **Phase 2** *(critical path)*: distance backend — `distance.py` (GUF pre-filter, field-gated), `distance_milp.py` (prime-q mod-q MILP, **trusted**), `distance_qudit.py` (trust-gated dispatcher). MILP verified vs brute-force (d=2,4) + qldpc exact; **first MILP-certified qudit code: `[[32,2,4]]₃`**. 83 tests.
