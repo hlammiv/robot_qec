@@ -66,6 +66,7 @@ literature, and synthesizes the result. See [`workflows/README.md`](workflows/RE
 - [x] Ground qudit capabilities with live experiments → [`docs/02`](docs/02-grounding-experiments.md)
 - [x] Scope the qudit extension (math + per-module changes) → [`docs/03`](docs/03-qudit-extension-scope.md)
 - [x] Phased implementation roadmap → [`docs/04`](docs/04-implementation-roadmap.md)
+- [x] Arbitrary-dimension strategy (CRT factoring) → [`docs/05`](docs/05-arbitrary-dimension-crt.md)
 - [ ] **Phase 0–1**: field substrate + CSS construction over GF(q) (q=3)
 - [ ] **Phase 2**: prime-q distance backend (GUF pre-filter + mod-q MILP) ← critical path
 - [ ] **Phase 3–4**: cascade + qudit genotype/seeds/prompts; run a GF(3) campaign
@@ -77,8 +78,15 @@ The CSS qudit path is **nearly free** — `qldpc`'s `BBCode(field=q)` already bu
 commuting GF(q) codes (auto-inserting the antipode+sign `H_Z=[Bᵀ,−Aᵀ]`) and gives
 field-aware `k`. The real work is the **distance layer** (a GF(q) mod-q MILP is the
 trusted signal and the ~2–3 day critical path) and a **coefficient-carrying
-genotype**. MVP ≈ 1.5–2.5 weeks, CSS + prime `q`. Non-CSS PBB, prime-power q, and
-qudit-Clifford equivalence are deferred research tracks. Full details in `docs/`.
+genotype**. MVP ≈ 1.5–2.5 weeks, CSS + prime `q`.
+
+**Arbitrary dimension** (`docs/05`): a `Z_d` code factors *exactly* via CRT into
+its prime-power reductions (verified), so **square-free `d` (6, 10, 15, …) reduces
+to prime fields** and is delivered cheaply by a thin CRT layer on top of the
+prime-`q` MVP (distance = min over factors). **Prime-power dimensions `p^a`** are a
+fork — Galois-qudit `GF(p^a)` (field, cheaper) vs modular-qudit `Z_{p^a}` (physical
+clock-mod-`d`, needs a Smith-normal-form ring backend). Non-CSS PBB and
+qudit-Clifford equivalence remain deferred research tracks. Full details in `docs/`.
 
 ## License
 

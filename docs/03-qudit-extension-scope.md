@@ -40,11 +40,16 @@ Lin & Pryadko, *Quantum two-block group algebra codes* (arXiv:2306.16400, Phys.
 Rev. A 109, 022407), and the qudit twisted-torus BB construction
 (arXiv:2602.04443).
 
-**Field requirement — prime-power `q` only.** `q = pᵐ` must be a **prime power**
-so that GF(q) is a field (both qldpc and `galois` require this). **Composite-`d`
-(the ring `Z_d`, `d` not a prime power — e.g. 4, 6) is a distinct modular-qudit
-family that qldpc cannot reach** and that needs ring linear algebra (Smith /
-Howell normal form). Composite-`d` is **out of scope** — flag and defer.
+**Field requirement — prime-power `q` only (for the *direct* construction).**
+`q = pᵐ` must be a **prime power** so that GF(q) is a field (both qldpc and
+`galois` require this). **Composite-`d` (the ring `Z_d`, `d` not a prime power —
+e.g. 6, 10, 12) is a distinct modular-qudit family that qldpc cannot reach
+directly.** It is, however, **in scope via CRT factoring** — see
+[05](05-arbitrary-dimension-crt.md): every `Z_d` check-matrix code factors exactly
+into its prime-power reductions, so **square-free `d` (6, 10, 15, …) reduces to
+prime fields** and is covered by the prime-`q` machinery plus a thin CRT layer;
+**prime-power factors `Z_{p^a}` (a>1)** need either the `GF(p^a)` field path or a
+`Z_{p^a}` ring backend (the open decision in [05](05-arbitrary-dimension-crt.md)).
 
 **CSS stabilizer form (verified).** For circulants `A = L(a)`, `B = R(b)` from
 `a, b ∈ R`:
@@ -236,5 +241,8 @@ loose). The only trustworthy non-CSS prime-q distance is the symplectic MILP
 9. **Target equivalence relation for dedup:** bare permutation, permutation +
    per-qudit GF(q)* scaling, or full local-Clifford? Decides whether the research
    `qudit_clifford` module is on the critical path for the publication headline.
-10. **Scope confirmation:** is prime-power q (GF(4)/GF(8)/GF(9)) wanted near-term,
-    and is composite-`d` (Z_d ring) explicitly out for v1?
+10. **Scope confirmation:** ~~is composite-`d` out for v1?~~ **Resolved
+    (2026-06-14): arbitrary `d` is in scope via CRT factoring**
+    ([05](05-arbitrary-dimension-crt.md)). Remaining sub-decision: interpret
+    prime-power dimensions/factors as **Galois-qudit `GF(p^a)` (field, cheaper)**
+    or **modular-qudit `Z_{p^a}` (physical, ring backend)**.
