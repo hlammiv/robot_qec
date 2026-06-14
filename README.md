@@ -62,13 +62,23 @@ literature, and synthesizes the result. See [`workflows/README.md`](workflows/RE
 ## Status
 
 - [x] Ingest paper (arXiv:2606.02418) and acquire reference repo
-- [x] Map the reference architecture + inventory every field assumption
-- [x] Ground qudit capabilities with live experiments
-- [x] Scope the qudit extension (math + per-module changes + roadmap)
-- [ ] Implement Phase 0 (qudit construction + field-aware k + exact-distance MVP)
-- [ ] Implement Phase 1 (GF(q) distance backend: qudit decoder + MILP)
-- [ ] Implement Phase 2 (qudit genotype + seeds + prompt context; run a campaign)
-- [ ] Discover and verify a new qudit code
+- [x] Map the reference architecture + inventory every field assumption → [`docs/01`](docs/01-reference-architecture.md)
+- [x] Ground qudit capabilities with live experiments → [`docs/02`](docs/02-grounding-experiments.md)
+- [x] Scope the qudit extension (math + per-module changes) → [`docs/03`](docs/03-qudit-extension-scope.md)
+- [x] Phased implementation roadmap → [`docs/04`](docs/04-implementation-roadmap.md)
+- [ ] **Phase 0–1**: field substrate + CSS construction over GF(q) (q=3)
+- [ ] **Phase 2**: prime-q distance backend (GUF pre-filter + mod-q MILP) ← critical path
+- [ ] **Phase 3–4**: cascade + qudit genotype/seeds/prompts; run a GF(3) campaign
+- [ ] **MVP**: discover + MILP-verify a new `[[n,k,d]]₃` CSS code
+
+### Key result of the scoping
+
+The CSS qudit path is **nearly free** — `qldpc`'s `BBCode(field=q)` already builds
+commuting GF(q) codes (auto-inserting the antipode+sign `H_Z=[Bᵀ,−Aᵀ]`) and gives
+field-aware `k`. The real work is the **distance layer** (a GF(q) mod-q MILP is the
+trusted signal and the ~2–3 day critical path) and a **coefficient-carrying
+genotype**. MVP ≈ 1.5–2.5 weeks, CSS + prime `q`. Non-CSS PBB, prime-power q, and
+qudit-Clifford equivalence are deferred research tracks. Full details in `docs/`.
 
 ## License
 

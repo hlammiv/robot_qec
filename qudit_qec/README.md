@@ -3,18 +3,21 @@
 Our code for the qudit extension. Empty for now beyond this map — modules land
 here as we execute `docs/04-implementation-roadmap.md`.
 
-## Planned module map (ours ⟶ what it extends in `qcode-discovery`)
+## Module map (ours ⟶ what it extends in `qcode-discovery`)
 
-| Planned module | Extends / replaces | Responsibility for GF(q) |
-|----------------|--------------------|--------------------------|
-| `construct.py` | `evaluation/bb_code.py`, `pbb_code.py` | Build qudit BB/PBB codes via `qldpc ...BBCode(..., field=q)` / `QuditCode(..., field=q)`; carry GF(q) coefficients. |
-| `genotype.py` | the exponent-tuple convention in `bb_code.py` + seeds | Term = `(x_exp, y_exp, coeff∈GF(q)*)`; `terms_to_poly`, `validate_terms`. |
-| `distance.py` | `evaluation/distance.py` | Field-aware distance: exact-enum (small n), qldpc qudit decoder bound, fallthrough. |
-| `distance_milp.py` | `evaluation/distance_milp.py` | GF(q) minimum-weight-logical MILP (mod-q constraints, symplectic weight). |
-| `evaluator.py` | `evaluation/evaluator.py` | Field-threaded cascade: k → quick distance → exact. |
-| `dedup.py` | `evaluation/tanner_equivalence.py` | BLISS coloring that encodes GF(q) edge coefficients. |
-| `equivalence.py` | `evaluation/clifford_equivalence.py` | Qudit Clifford / LC equivalence (likely post-MVP / research). |
-| `evolve/` | `evolve/seed_solution*.py`, `openevolve_evaluator*.py`, `prompt_context*.md`, `config*.yaml` | Qudit-aware seeds, fitness, MAP-Elites features, and LLM prompt domain knowledge. |
+Finalized by [`docs/03`](../docs/03-qudit-extension-scope.md) /
+[`docs/04`](../docs/04-implementation-roadmap.md). ✓ = MVP (CSS, prime q); — = deferred.
 
-> This table is provisional and is finalized by `docs/03-qudit-extension-scope.md`
-> once the scoping workflow completes.
+| Planned module | Extends / replaces | Responsibility for GF(q) | Phase |
+|---|---|---|---|
+| `field_utils.py` *(new)* | — | `get_field(q)` prime-power guard, in-field `assert_is_stabilizer_code`, `terms_to_poly_q`, `combine_like_terms`; **forbids raw `%q` on FieldArrays** | 0 ✓ |
+| `genotype.py` *(new)* | exponent-tuple convention in `bb_code.py` + seeds | Term = `(x_exp, y_exp, coeff∈GF(q)*)`; `canonicalize`; reused by all cache/dedup keys | 0 ✓ |
+| `construct.py` | `evaluation/bb_code.py` | Build qudit CSS BB via `BBCode(field=q)` (qldpc auto-handles antipode/sign) | 1 ✓ |
+| `distance.py` | `evaluation/distance.py` | Gate BP-OSD on `field.order==2`; kwarg-free GUF bound for q>2; OS-level timeout; `q^k`-gated exact | 2 ✓ |
+| `distance_milp.py` | `evaluation/distance_milp.py` | **Prime-q** mod-q MILP (`−q` slack, big-M weight indicator, prime guard) — the trusted signal | 2 ✓ |
+| `distance_qudit.py` *(new)* | — | Dispatcher: GUF pre-filter → MILP trusted → exact corroboration | 2 ✓ |
+| `evaluator.py` | `evaluation/evaluator.py` | Field-threaded cascade; MILP-corroboration trust gate; coeff-aware keys; `A==B⇒d=2` gated on q==2 | 3 ✓ |
+| `evolve/` | `seed_solution*.py`, `openevolve_evaluator*.py`, `prompt_context*.md`, `config*.yaml` | Coeff-bearing seeds + mutation, `QCODE_FIELD` plumbing, GF(q) prompts/baselines, retuned thresholds | 4 ✓ |
+| `pbb_construct.py` | `evaluation/pbb_code.py` | One-line `[Bᵀ,−Aᵀ]%q` sign fix + `field=q`; in-field commutativity | 5 — |
+| `dedup.py` | `evaluation/tanner_equivalence.py` | BLISS **structural value-gadget** encoding GF(q) edge coefficients | 6 — |
+| `qudit_clifford.py` *(new)* | `evaluation/clifford_equivalence.py` | `Sp(2,q)` Clifford / LC↔CSS equivalence (research) | 7 — |
