@@ -14,7 +14,13 @@ Phase 0 (this release) provides the field substrate and genotype foundations; se
 
 from __future__ import annotations
 
-from . import field_utils, genotype
+from . import construct, field_utils, genotype
+from .construct import (
+    build_bb_code,
+    code_params,
+    get_code_params_fast,
+    validate_terms,
+)
 from .field_utils import (
     assert_is_stabilizer_code,
     combine_like_terms,
@@ -39,6 +45,12 @@ __version__ = "0.1.0"
 __all__ = [
     "field_utils",
     "genotype",
+    "construct",
+    # construct
+    "validate_terms",
+    "build_bb_code",
+    "get_code_params_fast",
+    "code_params",
     # field_utils
     "prime_factorization",
     "is_prime_power",

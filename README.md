@@ -67,8 +67,8 @@ literature, and synthesizes the result. See [`workflows/README.md`](workflows/RE
 - [x] Scope the qudit extension (math + per-module changes) → [`docs/03`](docs/03-qudit-extension-scope.md)
 - [x] Phased implementation roadmap → [`docs/04`](docs/04-implementation-roadmap.md)
 - [x] Arbitrary-dimension strategy (CRT factoring) → [`docs/05`](docs/05-arbitrary-dimension-crt.md)
-- [x] **Phase 0**: field substrate + genotype — `qudit_qec/{field_utils,genotype}.py` (55 tests; round-trips GF(3)/GF(4) `[[72,·]]`, composite-`d` raises)
-- [ ] **Phase 1**: CSS construction wrapper over GF(q) — `build_bb_code(field=q)`
+- [x] **Phase 0**: field substrate + genotype — `qudit_qec/{field_utils,genotype}.py` (round-trips GF(3)/GF(4) `[[72,·]]`, composite-`d` raises)
+- [x] **Phase 1**: CSS construction over GF(q) — `qudit_qec/construct.py` (`build_bb_code(field=q)`; coeff flip collapses `k` 8→0; 70 tests total)
 - [ ] **Phase 2**: prime-q distance backend (GUF pre-filter + mod-q MILP) ← critical path
 - [ ] **Phase 3–4**: cascade + qudit genotype/seeds/prompts; run a GF(3) campaign
 - [ ] **MVP**: discover + MILP-verify a new `[[n,k,d]]₃` CSS code

@@ -14,7 +14,7 @@ Status: **✅ implemented** · 🔜 next · — deferred.
 |---|---|---|---|
 | ✅ `field_utils.py` | — | `get_field(q)` prime-power guard (composite→CRT), in-field `assert_is_stabilizer_code`, `terms_to_poly`, `combine_like_terms`, `to_field_element`; **forbids raw `%q` on FieldArrays** | 0 ✓ |
 | ✅ `genotype.py` | exponent-tuple convention in `bb_code.py` + seeds | Term = `(x_exp, y_exp, coeff∈GF(q))`; `canonicalize`/`poly_key`/`pair_key`/`tuple_key`; reused by all cache/dedup keys | 0 ✓ |
-| 🔜 `construct.py` | `evaluation/bb_code.py` | Build qudit CSS BB via `BBCode(field=q)` (qldpc auto-handles antipode/sign) | 1 ✓ |
+| ✅ `construct.py` | `evaluation/bb_code.py` | Build qudit CSS BB via `BBCode(field=q)` (qldpc auto-handles antipode/sign); `build_bb_code`/`validate_terms`/`code_params`; canonicalizes coeffs in-field before construction | 1 ✓ |
 | `distance.py` | `evaluation/distance.py` | Gate BP-OSD on `field.order==2`; kwarg-free GUF bound for q>2; OS-level timeout; `q^k`-gated exact | 2 ✓ |
 | `distance_milp.py` | `evaluation/distance_milp.py` | **Prime-q** mod-q MILP (`−q` slack, big-M weight indicator, prime guard) — the trusted signal | 2 ✓ |
 | `distance_qudit.py` *(new)* | — | Dispatcher: GUF pre-filter → MILP trusted → exact corroboration | 2 ✓ |
