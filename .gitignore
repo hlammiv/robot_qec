@@ -1,0 +1,33 @@
+# --- Claude Code local session state ---
+.claude/
+
+# --- Literature: do not redistribute third-party paper sources ---
+# The arXiv source is fetched locally for ingestion; we reference it by ID instead.
+literature/*.tar.gz
+literature/extracted/
+
+# --- Reference repo (cloned as a sibling, never vendored here) ---
+qcode-discovery/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.python-version
+
+# --- Tooling caches ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# --- Scratch / data ---
+/tmp/
+*.log
+scratch/
