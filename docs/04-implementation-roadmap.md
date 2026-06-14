@@ -125,16 +125,17 @@ prime-q MILP is the ~2–3 day critical path.
 ### Phase 7+ — Research expansion (~1–2 weeks each)
 - Full non-CSS q-ary randomized estimator (`distance_bposd_noncss.py` rewrite
   around a GUFDecoder wrapper).
-- **Prime-power dimensions/factors — the [05](05-arbitrary-dimension-crt.md)
-  fork.** Two independent tracks, chosen per the open decision:
-  - **(2a) Galois-qudit `GF(p^a)`** (medium): construction + `k` already free via
-    qldpc/galois; add only the `GF(p^a)`-valid distance path (audit every `%q` for
-    field arithmetic; prime-subfield MILP, or GUF + exact only).
-  - **(2b) Modular-qudit `Z_{p^a}`** (large, research): a ring-linear-algebra
-    backend — `k`/logicals via Smith/Howell normal form over `Z_{p^a}` (galois
-    cannot represent it); the distance MILP is valid here (integer mod-`p^a` *is*
-    the ring arithmetic). This is what makes a *physical* clock-mod-`d` ququart and
-    completes arbitrary `d` for non-square-free dimensions.
+- **Prime-power dimensions — both tracks, ordered cheapest-first** (decided
+  2026-06-14; see [05](05-arbitrary-dimension-crt.md)):
+  - **Phase 7a — Galois-qudit `GF(p^a)`** (medium, *do first*): construction + `k`
+    already free via qldpc/galois; add only the `GF(p^a)`-valid distance path
+    (audit every `%q` for field arithmetic; prime-subfield MILP, or GUF + exact).
+    Delivers `GF(4)/GF(8)/GF(9)` field qudits.
+  - **Phase 7b — Modular-qudit `Z_{p^a}`** (large, research, *after 7a*): a
+    ring-linear-algebra backend — `k`/logicals via Smith/Howell normal form over
+    `Z_{p^a}` (galois cannot represent it); the distance MILP is valid here (integer
+    mod-`p^a` *is* the ring arithmetic). Yields the *physical* clock-mod-`d` qudit
+    and, with Phase 4.5's CRT layer, **completes arbitrary integer dimension `d`**.
 - Qudit Clifford/LC-to-CSS equivalence (new `qudit_clifford.py`: `Sp(2,q)`
   generators + orbit search) — needed to reproduce non-CSS publication claims over
   GF(q).

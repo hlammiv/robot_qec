@@ -242,7 +242,8 @@ loose). The only trustworthy non-CSS prime-q distance is the symplectic MILP
    per-qudit GF(q)* scaling, or full local-Clifford? Decides whether the research
    `qudit_clifford` module is on the critical path for the publication headline.
 10. **Scope confirmation:** ~~is composite-`d` out for v1?~~ **Resolved
-    (2026-06-14): arbitrary `d` is in scope via CRT factoring**
-    ([05](05-arbitrary-dimension-crt.md)). Remaining sub-decision: interpret
-    prime-power dimensions/factors as **Galois-qudit `GF(p^a)` (field, cheaper)**
-    or **modular-qudit `Z_{p^a}` (physical, ring backend)**.
+    (2026-06-14): target arbitrary integer `d` via CRT factoring**
+    ([05](05-arbitrary-dimension-crt.md)). Prime-power dimensions get **both**
+    backends, ordered cheapest-first: **Phase 7a** Galois-qudit `GF(p^a)` (field),
+    then **Phase 7b** modular-qudit `Z_{p^a}` (physical, SNF ring backend).
+    No open dimension decisions remain.

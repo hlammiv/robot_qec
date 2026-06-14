@@ -123,11 +123,19 @@ qudit rather than a lopsided product.
 - Composite `d` moves from *out of scope* to **in scope via CRT**: square-free now
   (Tier 1), prime-power factors per the Tier-2 fork.
 
-## The remaining decision
+## Resolution (2026-06-14): both tracks, ordered
 
-Square-free `d` is unambiguous and cheap. The only thing that changes the backend
-is how you want **prime-power dimensions** (4, 8, 9, …, and the `p^a` factors
-inside `d` like 12, 18) interpreted: **Galois-qudit `GF(p^a)` (field, cheaper)**
-or **modular-qudit `Z_{p^a}` (physical clock-mod-`d`, ring backend)**. That choice
-is captured in the conversation and folded back into [04](04-implementation-roadmap.md)
-once made.
+Prime-power dimensions will be supported **both ways, sequenced cheapest-first**:
+
+1. **First — Galois-qudit `GF(p^a)` (field).** Reuses the existing field machinery;
+   qldpc/galois give construction + `k` for free, so only the `GF(p^a)`-valid
+   distance path is new. (Roadmap **Phase 7a**.)
+2. **Then — modular-qudit `Z_{p^a}` (ring).** The new Smith/Howell-normal-form ring
+   backend that yields the *physical* clock-mod-`d` qudit and completes arbitrary
+   `d` for non-square-free dimensions. (Roadmap **Phase 7b**.)
+
+Net dimension coverage, in build order:
+`prime fields` (MVP) → `square-free composite` via CRT (Phase 4.5, free) →
+`GF(p^a)` field qudits (Phase 7a) → `Z_{p^a}` ring qudits (Phase 7b) ⇒ **every
+integer dimension `d ≥ 2`**, with composite `d` always assembled by CRT from its
+prime-power factors.

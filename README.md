@@ -83,10 +83,13 @@ genotype**. MVP ≈ 1.5–2.5 weeks, CSS + prime `q`.
 **Arbitrary dimension** (`docs/05`): a `Z_d` code factors *exactly* via CRT into
 its prime-power reductions (verified), so **square-free `d` (6, 10, 15, …) reduces
 to prime fields** and is delivered cheaply by a thin CRT layer on top of the
-prime-`q` MVP (distance = min over factors). **Prime-power dimensions `p^a`** are a
-fork — Galois-qudit `GF(p^a)` (field, cheaper) vs modular-qudit `Z_{p^a}` (physical
-clock-mod-`d`, needs a Smith-normal-form ring backend). Non-CSS PBB and
-qudit-Clifford equivalence remain deferred research tracks. Full details in `docs/`.
+prime-`q` MVP (distance = min over factors). **Prime-power dimensions `p^a`** get
+**both** backends, cheapest-first: Galois-qudit `GF(p^a)` (field; Phase 7a), then
+modular-qudit `Z_{p^a}` (physical clock-mod-`d`, Smith-normal-form ring backend;
+Phase 7b) — together with the CRT layer this **covers every integer dimension
+`d ≥ 2`**. Build order: prime fields → square-free composite → `GF(p^a)` →
+`Z_{p^a}`. Non-CSS PBB and qudit-Clifford equivalence remain deferred research
+tracks. Full details in `docs/`.
 
 ## License
 
